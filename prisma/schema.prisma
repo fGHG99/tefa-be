@@ -22,9 +22,9 @@ model User {
 }
 
 model Produk {
-  id         Int    @id @default(autoincrement())
-  namaProduk String 
-  harga      Int?
-  jenis      String 
-  img        String  
+  id          Int    @id @default(autoincrement())
+  title       String 
+  price       Int?
+  imgUrl      String 
+  type        String  
 }
