@@ -74,6 +74,7 @@ router.post('/login', async (req, res) => {
 
         res.send({ user, token, refreshToken });
     } catch (err) {
+        console.log(err);
         res.status(500).send({ error: 'Failed to login user' });
     }
 });

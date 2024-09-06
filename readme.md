@@ -3,4 +3,5 @@ Apa yang udah urg lakukan :
 2. urg udah setup-setup
 
 Tugas : 
-Done
+1. buat login form dummy. bikin form di route '/', terus bikin route '/dashboard', nah tapi kalau mau masuk ke '/dashboard' harus login dulu dari route '/'
+2. buat table untuk masing-masing toko, list produk (nama, harga,kuantitas)
