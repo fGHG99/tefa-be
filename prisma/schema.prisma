@@ -23,7 +23,8 @@ model User {
 
 model Produk {
   id         Int    @id @default(autoincrement())
-  namaProduk String
-  expired    String
+  namaProduk String 
   harga      Int?
+  jenis      String 
+  img        String  
 }
