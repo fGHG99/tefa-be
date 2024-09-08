@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  name     String?
+  password String?
+  role     String?
+  orders   Order[]   // One-to-many relationship with Order
+  cart     Cart?     // One-to-one relationship with Cart
+  reviews  Review[]  // One-to-many relationship with Review
+}
+
+model Produk {
+  id          Int          @id @default(autoincrement())
+  produkId    Int          @unique
+  title       String
+  price       Int?
+  imgUrl      String
+  type        ProdukType
+  toko        Toko?        @relation(fields: [tokoId], references: [tokoId])
+  tokoId      Int?
+  orderItems  OrderItem[]  // One-to-many relationship with OrderItem
+  reviews     Review[]     // One-to-many relationship with Review
+  inventory   Inventory?   // One-to-one relationship with Inventory
+}
+
+enum ProdukType {
+  Makanan
+  Minuman
+}
+
+model Toko {
+  tokoId   Int      @id @default(autoincrement())
+  title    String
+  desc     String
+  produk   Produk[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  status    String
+  total     Float
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   Int
+  produk    Produk   @relation(fields: [produkId], references: [id])
+  produkId  Int
+  quantity  Int
+  price     Float
+}
+
+model Cart {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  items     CartItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    Int
+  produk    Produk   @relation(fields: [produkId], references: [id])
+  produkId  Int
+  quantity  Int
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  produk    Produk    @relation(fields: [produkId], references: [id])
+  produkId  Int
+  rating    Int
+  comment   String?
+  createdAt DateTime  @default(now())
+}
+
+model Inventory {
+  id        Int      @id @default(autoincrement())
+  produk    Produk   @relation(fields: [produkId], references: [id])
+  produkId  Int
+  quantity  Int
+}
