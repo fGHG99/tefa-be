@@ -20,13 +20,13 @@ router.post('/register', async (req, res) => {
 
     try {
         if (role === 'user' && !email.endsWith('.siswa@smkn4bdg.sch.id')) {
-            return res.status(400).send({ error: 'User must use a valid school email!' });
+            return res.status(400).json({ error: 'User must use a valid school email!' });
         }
 
         const existingUser = await prisma.user.findUnique({ where: { email } });
 
         if (existingUser) {
-            return res.status(400).send({ error: 'User already exists' });
+            return res.status(400).json({ error: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 8);
@@ -42,9 +42,10 @@ router.post('/register', async (req, res) => {
         const token = generateAuthToken(user);
         const refreshToken = generateRefreshToken(user);
 
-        res.status(201).send({ user, token, refreshToken });
+        res.status(201).json({ user, token, refreshToken });
     } catch (err) {
-        res.status(500).send({ error: 'Failed to register user' });
+        console.error('Registration error:', err);
+        res.status(500).json({ error: 'Failed to register user' });
     }
 });
 
@@ -56,26 +57,26 @@ router.post('/login', async (req, res) => {
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            return res.status(400).send({ error: 'Invalid login credentials' });
+            return res.status(400).json({ error: 'Invalid login credentials' });
         }
 
         if (user.role === 'user' && !email.endsWith('.siswa@smkn4bdg.sch.id')) {
-            return res.status(400).send({ error: 'User email must contain ".siswa@smkn4bdg.sch.id"' });
+            return res.status(400).json({ error: 'User email must contain ".siswa@smkn4bdg.sch.id"' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(400).send({ error: 'Invalid login credentials' });
+            return res.status(400).json({ error: 'Invalid login credentials' });
         }
 
         const token = generateAuthToken(user);
         const refreshToken = generateRefreshToken(user);
 
-        res.send({ user, token, refreshToken });
+        res.json({ user, token, refreshToken });
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ error: 'Failed to login user' });
+        console.error('Login error:', err);
+        res.status(500).json({ error: 'Failed to login user' });
     }
 });
 
@@ -84,7 +85,7 @@ router.post('/refresh-token', async (req, res) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-        return res.status(401).send({ error: 'Refresh token required' });
+        return res.status(401).json({ error: 'Refresh token required' });
     }
 
     try {
@@ -92,13 +93,14 @@ router.post('/refresh-token', async (req, res) => {
         const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
         if (!user) {
-            return res.status(404).send({ error: 'User not found' });
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const token = generateAuthToken(user);
-        res.send({ token });
+        res.json({ token });
     } catch (err) {
-        res.status(401).send({ error: 'Invalid refresh token' });
+        console.error('Refresh token error:', err);
+        res.status(401).json({ error: 'Invalid refresh token' });
     }
 });
 

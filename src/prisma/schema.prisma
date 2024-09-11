@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql" // atau "mysql", "sqlite", dll.
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,7 +15,6 @@ model User {
   role     Role      @default(USER)  // Enum for user roles
   orders   Order[]   // One-to-many relation with Order
   cart     Cart?     // One-to-one relation with Cart
-  reviews  Review[]  // One-to-many relation with Review
 }
 
 model Produk {
@@ -27,7 +26,6 @@ model Produk {
   toko        Toko?        @relation(fields: [tokoId], references: [id])
   tokoId      Int?
   orderItems  OrderItem[]  // One-to-many relation with OrderItem
-  reviews     Review[]     // One-to-many relation with Review
   inventory   Inventory?   // One-to-one relation with Inventory
   cartItems   CartItem[]   // One-to-many relation with CartItem (fix for missing opposite field)
 }
@@ -89,17 +87,6 @@ model CartItem {
   produk    Produk   @relation(fields: [produkId], references: [id])
   produkId  Int
   quantity  Int
-}
-
-model Review {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  produk    Produk    @relation(fields: [produkId], references: [id])
-  produkId  Int
-  rating    Int       // Rating between 1-5
-  comment   String?
-  createdAt DateTime  @default(now())
 }
 
 model Inventory {
