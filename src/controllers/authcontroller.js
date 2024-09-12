@@ -16,10 +16,10 @@ const generateRefreshToken = (user) => {
 
 // Register
 router.post('/register', async (req, res) => {
-    const { email, name, password, role = 'user' } = req.body;
+    const { email, name, password, role = 'USER' } = req.body;
 
     try {
-        if (role === 'user' && !email.endsWith('.siswa@smkn4bdg.sch.id')) {
+        if (role === 'USER' && !email.endsWith('.siswa@smkn4bdg.sch.id')) {
             return res.status(400).json({ error: 'User must use a valid school email!' });
         }
 
