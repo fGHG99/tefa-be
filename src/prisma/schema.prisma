@@ -23,10 +23,11 @@ model Produk {
   price       Float        
   imgUrl      String
   type        ProdukType   
-  toko        Toko?        @relation(fields: [tokoId], references: [id])
+  toko        Toko?        @relation(fields: [tokoId], references: [tokoId])
   tokoId      Int?
   orderItems  OrderItem[]  // One-to-many relation with OrderItem
-  inventory   Inventory?   // One-to-one relation with Inventory
+  inventory   Inventory?
+  quantity    Int?   
   cartItems   CartItem[]   // One-to-many relation with CartItem (fix for missing opposite field)
 }
 
@@ -37,7 +38,7 @@ enum ProdukType {
 
 model Toko {
   id      Int      @id @default(autoincrement())
-  tokoId  Int      
+  tokoId  Int      @unique
   name    String
   desc    String?
   produk  Produk[] // One-to-many relation with Produk

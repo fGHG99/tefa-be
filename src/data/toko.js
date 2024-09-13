@@ -1,8 +1,8 @@
 export const toko = [
         {
-        tokoId : 1,
-        name: 'Kantin Ibu Kosim',
-        desc: "Menjual Aneka Nasi dan Minum",
+            tokoId : 1,
+            name: 'Kantin Ibu Kosim',
+            desc: "Menjual Aneka Nasi dan Minum",
         },
         {
             tokoId : 2,
