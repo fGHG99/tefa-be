@@ -37,7 +37,7 @@ enum ProdukType {
 
 model Toko {
   id      Int      @id @default(autoincrement())
-  tokoId  Int      @id @default(autoincrement())
+  tokoId  Int      
   name    String
   desc    String?
   produk  Produk[] // One-to-many relation with Produk
