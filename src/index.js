@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const authcontroller = require('./controllers/authcontroller');
 const favoriteRoute = require('./routes/favoriteRoute');
+const cartRoute = require('../src/routes/cartRoute');
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,8 @@ app.use(cors({
 app.use('/api/auth', authcontroller);
 
 app.use('/favorites', favoriteRoute);
+
+app.use('/cart', cartRoute);
 // A protected route example
 
 const PORT = process.env.PORT || 3001;
