@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { toko } from "../data/toko.js";
-import { produk } from "../data/products.js";
+import { toko } from "../src/data/toko.js";
+import { produk } from "../src/data/products.js";
 
 const prisma = new PrismaClient();
 

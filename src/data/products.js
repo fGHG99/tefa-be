@@ -58,6 +58,8 @@ export const produk = [
     { title: 'Seblak', price: 12000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 5, quantity: 100 },
     { title: 'Dimsum', price: 10000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 5, quantity: 100 },
     { title: 'Lumpia Basah', price: 9000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 5, quantity: 100 },
+    { title: 'Basreng', price: 3000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 5, quantity: 100 },
+
   
     // Ibu Iin's products
     { title: 'Bacitul', price: 5000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 4, quantity: 100 },
