@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const authcontroller = require('./controllers/authcontroller');
-const middleware = require('./middlewares/middleware');
+const favoriteRoute = require('./routes/favoriteRoute');
 
 const app = express();
 app.use(express.json());
@@ -15,10 +15,8 @@ app.use(cors({
 
 app.use('/api/auth', authcontroller);
 
+app.use('/favorites', favoriteRoute);
 // A protected route example
-app.get('/api/protected', middleware, (req, res) => {
-    res.send('This is a protected route');
-});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
