@@ -38,12 +38,14 @@ enum ProdukType {
 }
 
 model Toko {
-  id      Int      @id @default(autoincrement())
-  tokoId  Int      @unique
-  name    String
-  desc    String?
-  produk  Produk[] // One-to-many relation with Produk
-  favorite    Favorite[] // Many-to-many relation with Favorite
+  id        Int      @id @default(autoincrement())
+  tokoId    Int      @unique
+  name      String
+  desc      String?
+  produk    Produk[] // One-to-many relation with Produk
+  favorite  Favorite[] // Many-to-many relation with Favorite
+  scanners  Scanner[] // Relation to the Scanner model
+  orders    Order[]   // One-to-many relation with Order (added this line)
 }
 
 model Order {
@@ -53,15 +55,19 @@ model Order {
   status    OrderStatus @default(Pending)
   total     Float
   items     OrderItem[] // One-to-many relation with OrderItem
+  toko      Toko        @relation(fields: [tokoId], references: [id])   
+  tokoId    Int
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  qrCodes   QRCode[]    // One-to-many relation with QRCode (added this line)
 }
+
 
 enum OrderStatus {
   Pending
   Processing
-  Shipped
-  Delivered
+  Ready
+  Completed
   Cancelled
 }
 
@@ -80,8 +86,6 @@ model Cart {
   userId    Int      @unique
   user      User     @relation(fields: [userId], references: [id])
   items     CartItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model CartItem {
@@ -91,8 +95,6 @@ model CartItem {
   produkId Int
   produk   Produk  @relation(fields: [produkId], references: [id])
   quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Inventory {
@@ -114,4 +116,27 @@ model Favorite {
 enum Role {
   USER
   ADMIN
+}
+
+model QRCode {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @unique
+  qrCodeUrl String   @unique
+  expiresAt DateTime
+  status    QRCodeStatus
+  order     Order    @relation(fields: [orderId], references: [id])
+}
+
+enum QRCodeStatus {
+  active
+  expired
+}
+
+model Scanner {
+  id        Int      @id @default(autoincrement())
+  vendorId  Int
+  scannerId String   @unique
+  createdAt DateTime @default(now())
+
+  Vendor    Toko     @relation(fields: [vendorId], references: [id]) // Relation to Toko model
 }
