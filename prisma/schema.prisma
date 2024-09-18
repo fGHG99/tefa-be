@@ -8,28 +8,28 @@ generator client {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  name     String?
-  password String
-  role     Role      @default(USER)  // Enum for user roles
-  orders   Order[]   // One-to-many relation with Order
-  cart     Cart?     // One-to-one relation with Cart
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  password  String
+  role      Role       @default(USER) // Enum for user roles
+  orders    Order[] // One-to-many relation with Order
+  cart      Cart? // One-to-one relation with Cart
   favorites Favorite[] // Many-to-many relation with Favorite
 }
 
 model Produk {
-  id          Int          @id @default(autoincrement())
-  title       String
-  price       Float        
-  imgUrl      String
-  type        ProdukType   
-  toko        Toko?        @relation(fields: [tokoId], references: [tokoId])
-  tokoId      Int?
-  orderItems  OrderItem[]  // One-to-many relation with OrderItem
-  inventory   Inventory?
-  quantity    Int?   
-  cartItems   CartItem[]   // One-to-many relation with CartItem (fix for missing opposite field)
+  id         Int         @id @default(autoincrement())
+  title      String
+  price      Float
+  imgUrl     String
+  type       ProdukType
+  toko       Toko?       @relation(fields: [tokoId], references: [tokoId])
+  tokoId     Int?
+  orderItems OrderItem[] // One-to-many relation with OrderItem
+  inventory  Inventory?
+  quantity   Int?
+  cartItems  CartItem[] // One-to-many relation with CartItem (fix for missing opposite field)
 }
 
 enum ProdukType {
@@ -38,30 +38,30 @@ enum ProdukType {
 }
 
 model Toko {
-  id        Int      @id @default(autoincrement())
-  tokoId    Int      @unique
-  name      String
-  desc      String?
-  produk    Produk[] // One-to-many relation with Produk
-  favorite  Favorite[] // Many-to-many relation with Favorite
-  scanners  Scanner[] // Relation to the Scanner model
-  orders    Order[]   // One-to-many relation with Order (added this line)
+  id       Int        @id @default(autoincrement())
+  tokoId   Int        @unique
+  name     String
+  desc     String?
+  produk   Produk[] // One-to-many relation with Produk
+  favorite Favorite[] // Many-to-many relation with Favorite
+  scanners Scanner[] // Relation to the Scanner model
+  orders   Order[] // One-to-many relation with Order (added this line)
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  user      User        @relation(fields: [userId], references: [id])
+  id        Int                  @id @default(autoincrement())
+  user      User                 @relation(fields: [userId], references: [id])
   userId    Int
-  status    OrderStatus @default(Pending)
+  status    OrderStatus          @default(Pending)
   total     Float
   items     OrderItem[] // One-to-many relation with OrderItem
-  toko      Toko        @relation(fields: [tokoId], references: [id])   
+  toko      Toko                 @relation(fields: [tokoId], references: [id])
   tokoId    Int
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  qrCodes   QRCode[]    // One-to-many relation with QRCode (added this line)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  qrCodes   QRCode[] // One-to-many relation with QRCode
+  history   TransactionHistory[] // One-to-many relation with TransactionHistory
 }
-
 
 enum OrderStatus {
   Pending
@@ -72,45 +72,45 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   Int
-  produk    Produk   @relation(fields: [produkId], references: [id])
-  produkId  Int
-  quantity  Int
-  price     Float
+  id       Int    @id @default(autoincrement())
+  order    Order  @relation(fields: [orderId], references: [id])
+  orderId  Int
+  produk   Produk @relation(fields: [produkId], references: [id])
+  produkId Int
+  quantity Int
+  price    Float
 }
 
 model Cart {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
-  items     CartItem[]
+  id     Int        @id @default(autoincrement())
+  userId Int        @unique
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
 }
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  cartId    Int
-  cart      Cart     @relation(fields: [cartId], references: [id])
+  id       Int    @id @default(autoincrement())
+  cartId   Int
+  cart     Cart   @relation(fields: [cartId], references: [id])
   produkId Int
-  produk   Produk  @relation(fields: [produkId], references: [id])
-  quantity  Int
+  produk   Produk @relation(fields: [produkId], references: [id])
+  quantity Int
 }
 
 model Inventory {
-  id        Int      @id @default(autoincrement())
-  produk    Produk   @relation(fields: [produkId], references: [id])
-  produkId  Int      @unique
-  quantity  Int
+  id       Int    @id @default(autoincrement())
+  produk   Produk @relation(fields: [produkId], references: [id])
+  produkId Int    @unique
+  quantity Int
 }
 
 model Favorite {
-  id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
   userId Int
-  toko   Toko  @relation(fields: [tokoId], references: [id])
+  toko   Toko @relation(fields: [tokoId], references: [id])
   tokoId Int
-  favId  Int   @unique
+  favId  Int  @unique
 }
 
 enum Role {
@@ -119,12 +119,12 @@ enum Role {
 }
 
 model QRCode {
-  id        Int      @id @default(autoincrement())
-  orderId   Int      @unique
-  qrCodeUrl String   @unique
+  id        Int          @id @default(autoincrement())
+  orderId   Int          @unique
+  qrCodeUrl String       @unique
   expiresAt DateTime
   status    QRCodeStatus
-  order     Order    @relation(fields: [orderId], references: [id])
+  order     Order        @relation(fields: [orderId], references: [id])
 }
 
 enum QRCodeStatus {
@@ -138,5 +138,13 @@ model Scanner {
   scannerId String   @unique
   createdAt DateTime @default(now())
 
-  Vendor    Toko     @relation(fields: [vendorId], references: [id]) // Relation to Toko model
+  Vendor Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
+}
+
+model TransactionHistory {
+  id        Int         @id @default(autoincrement())
+  order     Order       @relation(fields: [orderId], references: [id]) // Foreign key to Order
+  orderId   Int
+  status    OrderStatus
+  timestamp DateTime    @default(now())
 }
