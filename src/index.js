@@ -5,7 +5,7 @@ const scannerRoute = require('./routes/scannerRoute');
 const favoriteRoute = require('./routes/favoriteRoute');
 const cartRoute = require('../src/routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
-const transactionHistoryRoute = require('./routes/transactionHistoryRoute');
+const historyRoute = require('./routes/historyRoute');
 
 const app = express();
 app.use(express.json());
@@ -27,8 +27,6 @@ app.use('/orders', orderRoute);
 app.use('/favorites', favoriteRoute);
 
 app.use('/cart', cartRoute);
-
-app.use('/transaction-history', transactionHistoryRoute);
 
 
 const PORT = process.env.PORT || 3001;
