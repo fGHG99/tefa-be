@@ -6,6 +6,7 @@ const favoriteRoute = require('./routes/favoriteRoute');
 const cartRoute = require('../src/routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
 const historyRoute = require('./routes/historyRoute');
+const chatRoute = require('../routes/chatRoute')
 
 const app = express();
 app.use(express.json());
@@ -29,6 +30,8 @@ app.use('/favorites', favoriteRoute);
 app.use('/cart', cartRoute);
 
 app.use('/history', historyRoute);
+
+app.use('/chat', chatRoute);
 
 
 const PORT = process.env.PORT || 3001;
