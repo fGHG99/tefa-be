@@ -8,16 +8,6 @@ generator client {
 }
 
 model User {
-<<<<<<< HEAD
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String?
-  password  String
-  role      Role       @default(USER) // Enum for user roles
-  orders    Order[] // One-to-many relation with Order
-  cart      Cart? // One-to-one relation with Cart
-  favorites Favorite[] // Many-to-many relation with Favorite
-=======
   id               Int        @id @default(autoincrement())
   email            String     @unique
   name             String?
@@ -30,7 +20,6 @@ model User {
   sentMessages     Message[]  @relation("SentMessages")
   receivedMessages Message[]  @relation("ReceivedMessages")
   chatRooms        ChatRoom[] @relation("ChatRoomUser")
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
 }
 
 model Produk {
@@ -41,18 +30,11 @@ model Produk {
   type       ProdukType
   toko       Toko?       @relation(fields: [tokoId], references: [tokoId])
   tokoId     Int?
-<<<<<<< HEAD
-  orderItems OrderItem[] // One-to-many relation with OrderItem
-  inventory  Inventory?
-  quantity   Int?
-  cartItems  CartItem[] // One-to-many relation with CartItem (fix for missing opposite field)
-=======
   orderItems OrderItem[]
   inventory  Inventory?
   quantity   Int?
   cartItems  CartItem[]
   chatRooms  ChatRoom[]  @relation("ProdukChatRooms")
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
 }
 
 enum ProdukType {
@@ -65,17 +47,10 @@ model Toko {
   tokoId   Int        @unique
   name     String
   desc     String?
-<<<<<<< HEAD
-  produk   Produk[] // One-to-many relation with Produk
-  favorite Favorite[] // Many-to-many relation with Favorite
-  scanners Scanner[] // Relation to the Scanner model
-  orders   Order[] // One-to-many relation with Order (added this line)
-=======
   produk   Produk[]
   favorite Favorite[]
   scanners Scanner[] // Relation to the Scanner model
   orders   Order[]
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
 }
 
 model Order {
@@ -84,20 +59,12 @@ model Order {
   userId    Int
   status    OrderStatus          @default(Pending)
   total     Float
-<<<<<<< HEAD
-  items     OrderItem[] // One-to-many relation with OrderItem
-  toko      Toko                 @relation(fields: [tokoId], references: [id])
-  tokoId    Int
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
-=======
   items     OrderItem[]
   toko      Toko                 @relation(fields: [tokoId], references: [id])
   tokoId    Int
   chatRoom  ChatRoom?   @relation("OrderChatRoom")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
   qrCodes   QRCode[] // One-to-many relation with QRCode
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
 }
@@ -121,21 +88,6 @@ model OrderItem {
 }
 
 model Cart {
-<<<<<<< HEAD
-  id     Int        @id @default(autoincrement())
-  userId Int        @unique
-  user   User       @relation(fields: [userId], references: [id])
-  items  CartItem[]
-}
-
-model CartItem {
-  id       Int    @id @default(autoincrement())
-  cartId   Int
-  cart     Cart   @relation(fields: [cartId], references: [id])
-  produkId Int
-  produk   Produk @relation(fields: [produkId], references: [id])
-  quantity Int
-=======
   id        Int        @id @default(autoincrement())
   user      User       @relation(fields: [userId], references: [id])
   userId    Int        @unique // Ensure unique userId for one-to-one relation
@@ -149,7 +101,6 @@ model CartItem {
   produkId  Int
   produk    Produk   @relation(fields: [produkId], references: [id])
   quantity  Int
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
 }
 
 model Inventory {
@@ -166,14 +117,6 @@ model Favorite {
   toko   Toko @relation(fields: [tokoId], references: [id])
   tokoId Int
   favId  Int  @unique
-<<<<<<< HEAD
-}
-
-enum Role {
-  USER
-  ADMIN
-=======
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382
 }
 
 model QRCode {
@@ -229,11 +172,8 @@ model TransactionHistory {
   status    OrderStatus
   timestamp DateTime    @default(now())
 }
-<<<<<<< HEAD
-=======
 
 enum Role {
   USER
   ADMIN
 }
->>>>>>> e2f193a4f668974b1258b099a9b32d3145aca382

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const chatController = require('../controllers/chatController');
-const authMiddleware = require('../middleware/middleware');
+const authMiddleware = require('../middlewares/middleware');
 
 // Rute untuk membuat chat room (dilindungi autentikasi)
 router.post('/create', authMiddleware.protect, chatController.createChatRoom);

@@ -6,7 +6,7 @@ const favoriteRoute = require('./routes/favoriteRoute');
 const cartRoute = require('../src/routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
 const historyRoute = require('./routes/historyRoute');
-const chatRoute = require('../routes/chatRoute')
+const chatRoute = require('./routes/chatRoute')
 
 const app = express();
 app.use(express.json());
@@ -20,7 +20,6 @@ app.use(cors({
 
 app.use('/api/auth', authcontroller);
 
-// Use the scanner routes
 app.use('/scanner', scannerRoute);
 
 app.use('/orders', orderRoute);

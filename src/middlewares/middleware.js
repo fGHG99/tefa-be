@@ -3,7 +3,7 @@
 
     const prisma = new PrismaClient();
 
-    const middleware = async (req, res, next) => {
+    const protect = async (req, res, next) => {
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
@@ -30,4 +30,4 @@
         }
     };
 
-    module.exports = middleware;
+    module.exports = { protect };
