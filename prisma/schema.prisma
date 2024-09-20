@@ -72,8 +72,8 @@ model Order {
 enum OrderStatus {
   Pending
   Processing
-  Shipped
-  Delivered
+  Ready
+  Completed
   Cancelled
 }
 
