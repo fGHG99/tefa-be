@@ -28,7 +28,7 @@ app.use('/favorites', favoriteRoute);
 
 app.use('/cart', cartRoute);
 
-app.use('/history', transactionHistoryRoute);
+app.use('/transaction-history', transactionHistoryRoute);
 
 
 const PORT = process.env.PORT || 3001;
