@@ -6,19 +6,18 @@ const favoriteRoute = require('./routes/favoriteRoute');
 const cartRoute = require('../src/routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
 const historyRoute = require('./routes/historyRoute');
-const chatRoute = require('./routes/chatRoute')
 
 const app = express();
 app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-    origin: 'http://localhost:5173', // Frontend URL
+    origin: 'http://localhost:5173', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Allow cookies to be sent with requests
-}));
+    credentials: true, 
+}));    
 
-app.use('/api/auth', authcontroller);
+app.use('/auth', authcontroller);
 
 app.use('/scanner', scannerRoute);
 
@@ -29,8 +28,6 @@ app.use('/favorites', favoriteRoute);
 app.use('/cart', cartRoute);
 
 app.use('/history', historyRoute);
-
-app.use('/chat', chatRoute);
 
 
 const PORT = process.env.PORT || 3001;

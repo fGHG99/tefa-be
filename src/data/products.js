@@ -1,4 +1,4 @@
-export const produk = [
+const produk = [
     // Pak Sugito's products
     { title: 'Cakue', price: 5000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 13, quantity: 100 },
   
@@ -120,5 +120,6 @@ export const produk = [
     // { title: 'Ciki Crunchy Potato Net', price: 8000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 14, quantity: 100 },
     // { title: 'Krupuk', price: 5000, imgUrl: 'url_to_image', type: 'Makanan', tokoId: 14, quantity: 100 },
   ];
-  
+
+  module.exports = produk;
   

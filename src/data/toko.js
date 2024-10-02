@@ -1,4 +1,4 @@
-export const toko = [
+const toko = [
         {
             tokoId : 1,
             name: 'Kantin Ibu Kosim',
@@ -66,4 +66,5 @@ export const toko = [
         },
     ];
 
+    module.exports = toko;
     
