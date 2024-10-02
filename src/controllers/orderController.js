@@ -17,10 +17,20 @@ async function createOrder(req, res) {
         const productPrices = new Map(products.map(product => [product.id, product.price]));
 
         // Calculate total price based on the prices from the Produk table
-        const totalAmount = items.reduce((sum, item) => {
+        let totalAmount = items.reduce((sum, item) => {
             const productPrice = productPrices.get(item.id);
             return sum + (productPrice * item.quantity); // Multiply price by quantity
         }, 0);
+
+        // Fetch the admin fee from the Config table
+        const adminFeeConfig = await prisma.config.findUnique({
+            where: { key: 'adminFee' },
+        });
+
+        const adminFee = adminFeeConfig ? adminFeeConfig.value : 0;
+
+        // Add admin fee to the total amount
+        totalAmount += adminFee;
 
         // Create the order
         const order = await prisma.order.create({

@@ -173,6 +173,13 @@ model TransactionHistory {
   timestamp DateTime    @default(now())
 }
 
+model Config {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique 
+  value     Float    
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   USER
   ADMIN
