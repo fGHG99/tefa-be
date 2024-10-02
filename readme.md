@@ -6,6 +6,7 @@ First, install dependencies packages that we need:
 npm install
 ```
 And then create new db and migrate, seed data to db
+<br/>
 db : db_tefa
 
 ```bash
