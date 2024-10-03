@@ -35,5 +35,4 @@
   "devDependencies": {
     "prisma": "^5.19.1"
   }
-  
 }

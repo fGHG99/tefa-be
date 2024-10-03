@@ -8,18 +8,26 @@ generator client {
 }
 
 model User {
-  id               Int        @id @default(autoincrement())
-  email            String     @unique
+  id               String        @id @default(uuid())
+  email            String        @unique
   name             String?
   password         String
   role             Role       @default(USER)
+  refreshToken     String? 
+  Token            RefreshToken[]
   orders           Order[]
   cart             Cart?      @relation // No need for `fields` and `references` here
   cartId           Int? // Optional: For the one-to-one relation with Cart
   favorites        Favorite[]
-  sentMessages     Message[]  @relation("SentMessages")
-  receivedMessages Message[]  @relation("ReceivedMessages")
-  chatRooms        ChatRoom[] @relation("ChatRoomUser")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model Produk {
@@ -34,7 +42,6 @@ model Produk {
   inventory  Inventory?
   quantity   Int?
   cartItems  CartItem[]
-  chatRooms  ChatRoom[]  @relation("ProdukChatRooms")
 }
 
 enum ProdukType {
@@ -56,13 +63,12 @@ model Toko {
 model Order {
   id        Int                  @id @default(autoincrement())
   user      User                 @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   status    OrderStatus          @default(Pending)
   total     Float
   items     OrderItem[]
   toko      Toko                 @relation(fields: [tokoId], references: [id])
   tokoId    Int
-  chatRoom  ChatRoom?   @relation("OrderChatRoom")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   qrCodes   QRCode[] // One-to-many relation with QRCode
@@ -90,7 +96,7 @@ model OrderItem {
 model Cart {
   id        Int        @id @default(autoincrement())
   user      User       @relation(fields: [userId], references: [id])
-  userId    Int        @unique // Ensure unique userId for one-to-one relation
+  userId    String     @unique 
   items     CartItem[]
 }
 
@@ -113,7 +119,7 @@ model Inventory {
 model Favorite {
   id     Int  @id @default(autoincrement())
   user   User @relation(fields: [userId], references: [id])
-  userId Int
+  userId String
   toko   Toko @relation(fields: [tokoId], references: [id])
   tokoId Int
   favId  Int  @unique
@@ -131,29 +137,6 @@ model QRCode {
 enum QRCodeStatus {
   active
   expired
-}
-
-model ChatRoom {
-  id       Int       @id @default(autoincrement())
-  name     String
-  messages Message[]
-  users    User[]    @relation("ChatRoomUser")
-  produk   Produk?   @relation("ProdukChatRooms", fields: [produkId], references: [id])
-  produkId Int?
-  order    Order?    @relation("OrderChatRoom", fields: [orderId], references: [id])
-  orderId  Int?      @unique
-}
-
-model Message {
-  id         Int     @id @default(autoincrement())
-  content    String
-  senderId   Int
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
-  receiverId Int
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  chatRoomId Int
-  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
-  createdAt  DateTime @default(now())
 }
 
 model Scanner {
@@ -183,4 +166,5 @@ model Config {
 enum Role {
   USER
   ADMIN
+  MERCHANT
 }

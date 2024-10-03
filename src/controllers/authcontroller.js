@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 const generateAuthToken = (user) => {
-    return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' }); // Access token expires in 15 minutes
+    return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
 
 const generateRefreshToken = (user) => {
-    return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
+    return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' }); 
 };
 
 // Register
@@ -41,6 +41,12 @@ router.post('/register', async (req, res) => {
 
         const token = generateAuthToken(user);
         const refreshToken = generateRefreshToken(user);
+
+        // Store the refresh token in the database
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        });
 
         res.status(201).json({ user, token, refreshToken });
     } catch (err) {
@@ -73,10 +79,34 @@ router.post('/login', async (req, res) => {
         const token = generateAuthToken(user);
         const refreshToken = generateRefreshToken(user);
 
+        // Update the refresh token in the database
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        });
+
         res.json({ user, token, refreshToken });
     } catch (err) {
         console.error('Login error:', err);
         res.status(500).json({ error: 'Failed to login user' });
+    }
+});
+
+// Logout
+router.post('/logout', async (req, res) => {
+    const { userId } = req.body;  // Assuming the user ID is passed from the frontend
+    
+    try {
+        // Clear the refresh token in the database
+        await prisma.user.update({
+            where: { id: userId },
+            data: { refreshToken: null }
+        });
+
+        res.status(200).json({ message: 'Successfully logged out' });
+    } catch (err) {
+        console.error('Logout error:', err);
+        res.status(500).json({ error: 'Failed to log out user' });
     }
 });
 
@@ -92,16 +122,17 @@ router.post('/refresh-token', async (req, res) => {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({ error: 'Invalid refresh token' });
         }
 
-        const token = generateAuthToken(user);
-        res.json({ token });
+        const newAccessToken = generateAuthToken(user);
+        res.json({ token: newAccessToken });
     } catch (err) {
         console.error('Refresh token error:', err);
         res.status(401).json({ error: 'Invalid refresh token' });
     }
 });
+
 
 module.exports = router;
