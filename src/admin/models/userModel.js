@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { prisma } = require('../../utils/prisma');
 const bcrypt = require('bcrypt');
 
 // Create a new user
@@ -15,7 +14,7 @@ async function createUser(data) {
       email,
       password: hashedPassword,
       name,
-      role: role || 'USER', // Default to USER if role is not provided
+      role: role , // Default to USER if role is not provided
     },
   });
 }
@@ -30,20 +29,17 @@ async function findUserByEmail(email) {
 // Get all users
 async function getAllUsers() {
   return await prisma.user.findMany({
-    include: {
-      orders: true,  // Include related orders if necessary
-      cart: true,    // Include related cart if necessary
-      favorites: true // Include related favorites if necessary
+    include: {  
+      cart: true,    
+      favorites: true 
     },
   });
 }
 
-// Update a user
 async function updateUser(id, data) {
   const user = await isUserExist(id);
   if (!user) throw new Error('User does not exist');
 
-  // Hash the password if it's included in the data
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
@@ -54,12 +50,10 @@ async function updateUser(id, data) {
   });
 }
 
-// Check if user exists by ID
-async function isExist(id) {
+async function isUserExist(id) {
   return await prisma.user.findUnique({ where: { id } });
 }
 
-// Delete a user
 async function deleteUser(id) {
   return await prisma.user.delete({
     where: { id },
@@ -100,7 +94,7 @@ module.exports = {
   findUserByEmail,
   getAllUsers,
   updateUser,
-  isExist,
+  isUserExist,
   deleteUser,
   logIn,
   logOut
