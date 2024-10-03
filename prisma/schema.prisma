@@ -7,6 +7,30 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum ProdukType {
+  Makanan
+  Minuman
+}
+
+enum OrderStatus {
+  Pending
+  Processing
+  Ready
+  Completed
+  Cancelled
+}
+
+enum QRCodeStatus {
+  active
+  expired
+}
+
+enum Role {
+  USER
+  ADMIN
+  MERCHANT
+}
+
 model User {
   id               String        @id @default(uuid())
   email            String        @unique
@@ -14,14 +38,14 @@ model User {
   password         String
   role             Role       @default(USER)
   refreshToken     String? 
-  Token            RefreshToken[]
+  Token            Token[]
   orders           Order[]
-  cart             Cart?      @relation // No need for `fields` and `references` here
-  cartId           Int? // Optional: For the one-to-one relation with Cart
+  cart             Cart?   @relation
+  cartId           Int?    Optional: For the one-to-one relation with Cart
   favorites        Favorite[]
 }
 
-model RefreshToken {
+model Token {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    String
@@ -44,10 +68,7 @@ model Produk {
   cartItems  CartItem[]
 }
 
-enum ProdukType {
-  Makanan
-  Minuman
-}
+
 
 model Toko {
   id       Int        @id @default(autoincrement())
@@ -73,14 +94,6 @@ model Order {
   updatedAt DateTime    @updatedAt
   qrCodes   QRCode[] // One-to-many relation with QRCode
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
-}
-
-enum OrderStatus {
-  Pending
-  Processing
-  Ready
-  Completed
-  Cancelled
 }
 
 model OrderItem {
@@ -134,11 +147,6 @@ model QRCode {
   order     Order        @relation(fields: [orderId], references: [id])
 }
 
-enum QRCodeStatus {
-  active
-  expired
-}
-
 model Scanner {
   id        Int      @id @default(autoincrement())
   vendorId  Int
@@ -163,8 +171,3 @@ model Config {
   createdAt DateTime @default(now())
 }
 
-enum Role {
-  USER
-  ADMIN
-  MERCHANT
-}

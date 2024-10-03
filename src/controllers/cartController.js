@@ -25,6 +25,12 @@ const addItemToCart = async (req, res) => {
         },
         include: { items: true }
       });
+
+      // Update the user to set the cartId
+      await prisma.user.update({
+        where: { id: userId },
+        data: { cartId: cart.id }
+      });
     } else {
       // Check if the item already exists in the cart
       const existingItem = cart.items.find(item => item.produkId === productId);
@@ -52,6 +58,16 @@ const addItemToCart = async (req, res) => {
       where: { userId },
       include: { items: true }
     });
+
+    try { 
+      await prisma.user.update({
+        where: { id: userId },
+        data: { cartId: cart.id }
+      });
+      console.log(`User ${userId} updated with cartId ${cart.id}`);
+    } catch (error) {
+      console.error('Error updating user cartId:', error); // Log error if update fails
+    }
 
     res.status(200).json(updatedCart);
   } catch (error) {
