@@ -4,9 +4,12 @@ const produk = require("../src/data/products.js");
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function main() { 
   try {
     console.log("Clearing existing data...");
+    await prisma.orderItem.deleteMany({});
+    await prisma.cartItem.deleteMany({});
+    await prisma.inventory.deleteMany({});
     await prisma.produk.deleteMany({});
     await prisma.toko.deleteMany({});
 

@@ -41,7 +41,7 @@ model User {
   Token            Token[]
   orders           Order[]
   cart             Cart?   @relation
-  cartId           Int?    Optional: For the one-to-one relation with Cart
+  cartId           Int?    
   favorites        Favorite[]
 }
 
@@ -60,12 +60,12 @@ model Produk {
   price      Float
   imgUrl     String
   type       ProdukType
-  toko       Toko?       @relation(fields: [tokoId], references: [tokoId])
+  toko       Toko?       @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
   tokoId     Int?
-  orderItems OrderItem[]
-  inventory  Inventory?
+  orderItems OrderItem[] 
+  inventory  Inventory?  
   quantity   Int?
-  cartItems  CartItem[]
+  cartItems  CartItem[] 
 }
 
 
@@ -77,7 +77,7 @@ model Toko {
   desc     String?
   produk   Produk[]
   favorite Favorite[]
-  scanners Scanner[] // Relation to the Scanner model
+  scanners Scanner[] 
   orders   Order[]
 }
 
@@ -100,7 +100,7 @@ model OrderItem {
   id       Int    @id @default(autoincrement())
   order    Order  @relation(fields: [orderId], references: [id])
   orderId  Int
-  produk   Produk @relation(fields: [produkId], references: [id])
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
   produkId Int
   quantity Int
   price    Float
@@ -118,13 +118,13 @@ model CartItem {
   cartId    Int
   cart      Cart     @relation(fields: [cartId], references: [id])
   produkId  Int
-  produk    Produk   @relation(fields: [produkId], references: [id])
+  produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
   quantity  Int
 }
 
 model Inventory {
   id       Int    @id @default(autoincrement())
-  produk   Produk @relation(fields: [produkId], references: [id])
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
   produkId Int    @unique
   quantity Int
 }
