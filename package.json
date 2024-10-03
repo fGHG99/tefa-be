@@ -1,11 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "src/app.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "node prisma/seed.js"
+    "seed": "npx prisma db seed",
+    "migrate": "npx prisma migrate dev"
   },
   "keywords": [],
   "author": "",

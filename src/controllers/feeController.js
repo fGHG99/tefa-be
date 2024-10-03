@@ -1,7 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const { prisma } = require('../utils/prisma');
 
-// Get the current admin fee from the database
 const getAdminFee = async (req, res) => {
   try {
     const config = await prisma.config.findUnique({ where: { key: 'adminFee' } });

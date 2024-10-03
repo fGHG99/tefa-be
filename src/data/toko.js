@@ -64,6 +64,16 @@ const toko = [
             name: 'Kantin Pak Sugito',
             desc: "Menjual makanan",
         },
+        {
+            tokoId : 14,
+            name: 'Koperasi Siswa',
+            desc: "Menjual aneka makanan dan minuman",
+        },
+        {
+            tokoId : 15,
+            name: 'Hydro 4',
+            desc: "Menjual air mineral buatan SMKN 4 Bandung",
+        }
     ];
 
     module.exports = toko;

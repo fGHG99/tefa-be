@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { prisma } = require('../utils/prisma');
 
 const addItemToCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;

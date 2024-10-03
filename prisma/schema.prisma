@@ -8,8 +8,8 @@ generator client {
 }
 
 enum ProdukType {
-  Makanan
-  Minuman
+  Food
+  Beverage
 }
 
 enum OrderStatus {
