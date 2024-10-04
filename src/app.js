@@ -1,37 +1,45 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const chatRoutes = require('./routes/chatRoute');
+const cors = require('cors');
+const authcontroller = require('./user/controllers/authController');
+const userController = require('./user/controllers/userController');
+const scannerRoute = require('./user/routes/scannerRoute');
+const favoriteRoute = require('./user/routes/favoriteRoute');
+const cartRoute = require('./user/routes/cartRoute');
+const orderRoute = require('./user/routes/orderRoute');
+const historyRoute = require('./user/routes/historyRoute');
+const productRoute = require('./user/routes/productRoute');
+const configRoute = require('./user/routes/feeRoute');
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
 app.use(express.json());
 
-// Tambahkan rute chat
-app.use('/chat', chatRoutes);
+// Enable CORS
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, 
+}));    
 
-// Socket.IO untuk chat real-time
-io.on('connection', (socket) => {
-  console.log('New WebSocket connection');
+app.use('/auth', authcontroller);
 
-  socket.on('joinRoom', (chatRoomId) => {
-    socket.join(chatRoomId);
-    console.log(`User joined chat room: ${chatRoomId}`);
-  });
+app.use('/scanner', scannerRoute);
 
-  socket.on('sendMessage', (message) => {
-    io.to(message.chatRoomId).emit('message', message);
-    console.log('Message sent:', message);
-  });
+app.use('/orders', orderRoute);
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
+app.use('/favorites', favoriteRoute);
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.use('/cart', cartRoute);
+
+app.use('/history', historyRoute);
+
+app.use('/product', productRoute);
+
+app.use('/config', configRoute);
+
+app.use('/user', userController);
+
+
+const PORT = process.env.PORT || "3001";
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

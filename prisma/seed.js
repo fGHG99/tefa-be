@@ -1,12 +1,15 @@
-import { PrismaClient } from "@prisma/client";
-import { toko } from "../src/data/toko.js";
-import { produk } from "../src/data/products.js";
+const { PrismaClient } = require("@prisma/client");
+const toko = require("../src/data/toko.js");
+const produk = require("../src/data/products.js");
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function main() { 
   try {
     console.log("Clearing existing data...");
+    await prisma.orderItem.deleteMany({});
+    await prisma.cartItem.deleteMany({});
+    await prisma.inventory.deleteMany({});
     await prisma.produk.deleteMany({});
     await prisma.toko.deleteMany({});
 
