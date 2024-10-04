@@ -36,13 +36,14 @@ model User {
   email            String        @unique
   name             String?
   password         String
-  role             Role       @default(USER)
+  role             Role          @default(USER)
   refreshToken     String? 
-  Token            Token[]
+  tokens           Token[]
   orders           Order[]
-  cart             Cart?   @relation
+  cart             Cart?         @relation
   cartId           Int?    
   favorites        Favorite[]
+  notifications    Notification[] // Relasi ke notifikasi
 }
 
 model Token {
@@ -68,8 +69,6 @@ model Produk {
   cartItems  CartItem[] 
 }
 
-
-
 model Toko {
   id       Int        @id @default(autoincrement())
   tokoId   Int        @unique
@@ -90,10 +89,11 @@ model Order {
   items     OrderItem[]
   toko      Toko                 @relation(fields: [tokoId], references: [id])
   tokoId    Int
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  qrCodes   QRCode[] // One-to-many relation with QRCode
-  history   TransactionHistory[] // One-to-many relation with TransactionHistory
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  qrCodes   QRCode[]             // One-to-many relation with QRCode
+  history   TransactionHistory[]   // One-to-many relation with TransactionHistory
+  notifications Notification[]    // Relasi ke notifikasi
 }
 
 model OrderItem {
@@ -120,6 +120,8 @@ model CartItem {
   produkId  Int
   produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
   quantity  Int
+
+  @@unique([cartId, produkId]) // Satu produk hanya bisa ada sekali di satu cart
 }
 
 model Inventory {
@@ -153,7 +155,7 @@ model Scanner {
   scannerId String   @unique
   createdAt DateTime @default(now())
 
-  Vendor Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
+  vendor    Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
 }
 
 model TransactionHistory {
@@ -171,3 +173,13 @@ model Config {
   createdAt DateTime @default(now())
 }
 
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  orderId   Int?          // Jika notifikasi terkait dengan order tertentu
+  order     Order?        @relation(fields: [orderId], references: [id])
+  message   String
+  isRead    Boolean       @default(false) // Status baca/not baca
+  createdAt DateTime     @default(now())
+}

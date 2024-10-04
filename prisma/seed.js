@@ -1,10 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
-const toko = require("../src/data/toko.js");
-const produk = require("../src/data/products.js");
+const toko = require("../src/user/data/toko.js");
+const produk = require("../src/user/data/products.js");
 
 const prisma = new PrismaClient();
 
-async function main() { 
+async function main() {
   try {
     console.log("Clearing existing data...");
     await prisma.orderItem.deleteMany({});
@@ -22,12 +22,15 @@ async function main() {
 
     // Fetch existing toko records to validate tokoId references
     const tokoRecords = await prisma.toko.findMany();
-    const tokoIds = new Set(tokoRecords.map(t => t.tokoId));
+    const tokoIds = new Set(tokoRecords.map((t) => t.tokoId));
 
     // Validate produk data
-    const invalidProduk = produk.filter(p => !tokoIds.has(p.tokoId));
+    const invalidProduk = produk.filter((p) => !tokoIds.has(p.tokoId));
     if (invalidProduk.length > 0) {
-      console.error("Invalid produk data with non-existent tokoId:", invalidProduk);
+      console.error(
+        "Invalid produk data with non-existent tokoId:",
+        invalidProduk
+      );
       throw new Error("Some produk entries have invalid tokoId references.");
     }
 
