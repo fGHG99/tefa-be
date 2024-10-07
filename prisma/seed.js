@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
-const toko = require("../src/data/toko.js");
-const produk = require("../src/data/products.js");
+const toko = require("../src/user/data/toko.js");
+const produk = require("../src/user/data/products.js");
 
 const prisma = new PrismaClient();
 
