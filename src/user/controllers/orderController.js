@@ -1,57 +1,82 @@
 const { prisma } = require('../../utils/prisma');
 const QRCode = require('qrcode');
 
-// Create a new order
-async function createOrder(req, res) {
-    const { userId, tokoId, items } = req.body;
+// Create new orders for each Toko (merchant) involved
+const createOrder = async (userId, cartItems) => {
+    console.log("Creating order for user:", userId, "with items:", cartItems); // Debugging log
 
     try {
         // Fetch the products and their prices
-        const productIds = items.map(item => item.id);
+        const productIds = cartItems.map(item => item.produkId); // Ambil produkId dari cartItems
         const products = await prisma.produk.findMany({
             where: { id: { in: productIds } },
         });
 
-        // Map product prices for easy lookup
-        const productPrices = new Map(products.map(product => [product.id, product.price]));
+        // Check if products are found
+        if (products.length === 0) {
+            console.error("No products found for the given IDs:", productIds);
+            throw new Error('No products found for the provided item IDs');
+        }
 
-        // Calculate total price based on the prices from the Produk table
-        let totalAmount = items.reduce((sum, item) => {
-            const productPrice = productPrices.get(item.id);
-            return sum + (productPrice * item.quantity); // Multiply price by quantity
-        }, 0);
+        // Group items by Toko (merchant)
+        const itemsByToko = cartItems.reduce((acc, item) => {
+            const product = products.find(p => p.id === item.produkId);
+            const tokoId = product?.tokoId; // Use optional chaining to prevent errors
+
+            if (!tokoId) {
+                console.error("Product does not have a tokoId:", product);
+                return acc; // Skip if tokoId is not found
+            }
+
+            if (!acc[tokoId]) acc[tokoId] = [];
+            acc[tokoId].push({ ...item, price: product.price });
+            return acc;
+        }, {});
+
+        const orders = [];
 
         // Fetch the admin fee from the Config table
         const adminFeeConfig = await prisma.config.findUnique({
             where: { key: 'adminFee' },
         });
 
-        const adminFee = adminFeeConfig ? adminFeeConfig.value : 0;
+        const adminFee = adminFeeConfig ? parseFloat(adminFeeConfig.value) : 0; // Pastikan adminFee di parsing ke float
 
-        // Add admin fee to the total amount
-        totalAmount += adminFee;
+        // Create separate orders for each Toko
+        for (const tokoId in itemsByToko) {
+            const tokoItems = itemsByToko[tokoId];
 
-        // Create the order
-        const order = await prisma.order.create({
-            data: {
-                userId,
-                tokoId,
-                total: totalAmount,
-                status: 'Pending', // Order starts with 'Pending' status
-                items: {
-                    create: items.map(item => ({
-                        produkId: item.id, // Use 'id' as per your Produk model
-                        quantity: item.quantity,
-                        price: productPrices.get(item.id), // Use price from Produk table
-                    })),
+            // Calculate total amount for each order
+            let totalAmount = tokoItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmount += adminFee;
+
+            // Create the order
+            const order = await prisma.order.create({
+                data: {
+                    userId: userId,
+                    tokoId: tokoId,
+                    total: totalAmount,
+                    status: 'Pending', // Order starts with 'Pending' status
+                    items: {
+                        create: tokoItems.map(item => ({
+                            produkId: item.produkId,
+                            quantity: item.quantity,
+                            price: item.price,
+                        })),
+                    },
                 },
-            },
-        });
-        res.status(201).json(order);
+            });
+            
+
+            orders.push(order);
+        }
+
+        return orders; // Kembalikan orders yang telah dibuat
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create order' });
+        console.error('Error creating order:', error);
+        throw new Error('Failed to create orders');
     }
-}
+};
 
 // Update the status of an order and generate QR Code if status is 'Ready'
 async function updateOrderStatus(req, res) {
