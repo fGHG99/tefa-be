@@ -7,16 +7,24 @@ const getProducts = async (req, res) => {
     const products = await prisma.produk.findMany({
       include: {
         toko: true,        // Include related store (Toko)
-        inventory: true,   // Include related inventory
+        inventory: true,   // Include related inventory (with quantity)
         cartItems: true,   // Include related cart items if needed
       },
     });
-    res.status(200).json(products);
+
+    const productsWithQuantity = products.map(product => ({
+      ...product,
+      inventoryQuantity: product.inventory ? product.inventory.quantity : null, // Inventory quantity if exists
+      productQuantity: product.quantity, // Product quantity from Produk model
+    }));
+
+    res.status(200).json(productsWithQuantity);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching products:", error);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 };
+
 
 // Get a product by ID with related toko and inventory
 const getProductById = async (req, res) => {
@@ -43,14 +51,15 @@ const createProduct = async (req, res) => {
   try {
     const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
 
+    // Ensure you're connecting to the Toko using the correct field (id)
     const newProduct = await prisma.produk.create({
       data: {
         title,
         price,
         imgUrl,
         type,
-        toko: { connect: { id: tokoId } },  // Link to existing Toko
-        inventory: {                        // Create inventory record
+        toko: { connect: { id: tokoId } }, // Connect using 'id' field
+        inventory: {
           create: {
             quantity: inventoryQuantity,
           },
@@ -60,10 +69,11 @@ const createProduct = async (req, res) => {
 
     res.status(201).json(newProduct);
   } catch (error) {
-    console.error(error);
+    console.error('Error creating product:', error);
     res.status(500).json({ error: 'Failed to create product' });
   }
 };
+
 
 // Update a product with possible modifications to toko and inventory
 const updateProduct = async (req, res) => {

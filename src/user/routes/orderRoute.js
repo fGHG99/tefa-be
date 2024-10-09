@@ -1,6 +1,6 @@
 // routes/orderRoutes.js
 const express = require('express');
-const { createOrder, updateOrderStatus, markOrderReady, completeOrder } = require('../controllers/ordercontroller');
+const { createOrder, updateOrderStatus, markOrderReady, completeOrder } = require('../controllers/orderController');
 
 const router = express.Router();
 
