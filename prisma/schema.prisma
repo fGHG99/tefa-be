@@ -7,30 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum ProdukType {
-  Food
-  Beverage
-}
-
-enum OrderStatus {
-  Pending
-  Processing
-  Ready
-  Completed
-  Cancelled
-}
-
-enum QRCodeStatus {
-  active
-  expired
-}
-
-enum Role {
-  USER
-  ADMIN
-  MERCHANT
-}
-
 model User {
   id               String        @id @default(uuid())
   email            String        @unique
@@ -38,14 +14,14 @@ model User {
   password         String
   role             Role       @default(USER)
   refreshToken     String? 
-  Token            Token[]
+  Token            RefreshToken[]
   orders           Order[]
-  cart             Cart?   @relation
-  cartId           Int?    
+  cart             Cart?      @relation // No need for `fields` and `references` here
+  cartId           Int? // Optional: For the one-to-one relation with Cart
   favorites        Favorite[]
 }
 
-model Token {
+model RefreshToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    String
@@ -60,15 +36,18 @@ model Produk {
   price      Float
   imgUrl     String
   type       ProdukType
-  toko       Toko?       @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
+  toko       Toko?       @relation(fields: [tokoId], references: [tokoId])
   tokoId     Int?
-  orderItems OrderItem[] 
-  inventory  Inventory?  
-  quantity   Int?
-  cartItems  CartItem[] 
+  orderItems OrderItem[]
+  inventory  Inventory?   // Related inventory
+  quantity   Int?         // Direct quantity in Produk model
+  cartItems  CartItem[]
 }
 
-
+enum ProdukType {
+  Makanan
+  Minuman
+}
 
 model Toko {
   id       Int        @id @default(autoincrement())
@@ -77,7 +56,7 @@ model Toko {
   desc     String?
   produk   Produk[]
   favorite Favorite[]
-  scanners Scanner[] 
+  scanners Scanner[] // Relation to the Scanner model
   orders   Order[]
 }
 
@@ -96,11 +75,19 @@ model Order {
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
 }
 
+enum OrderStatus {
+  Pending
+  Processing
+  Ready
+  Completed
+  Cancelled
+}
+
 model OrderItem {
   id       Int    @id @default(autoincrement())
   order    Order  @relation(fields: [orderId], references: [id])
   orderId  Int
-  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+  produk   Produk @relation(fields: [produkId], references: [id])
   produkId Int
   quantity Int
   price    Float
@@ -118,15 +105,15 @@ model CartItem {
   cartId    Int
   cart      Cart     @relation(fields: [cartId], references: [id])
   produkId  Int
-  produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
+  produk    Produk   @relation(fields: [produkId], references: [id])
   quantity  Int
 }
 
 model Inventory {
   id       Int    @id @default(autoincrement())
-  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+  produk   Produk @relation(fields: [produkId], references: [id])
   produkId Int    @unique
-  quantity Int
+  quantity Int    // Inventory quantity
 }
 
 model Favorite {
@@ -145,6 +132,11 @@ model QRCode {
   expiresAt DateTime
   status    QRCodeStatus
   order     Order        @relation(fields: [orderId], references: [id])
+}
+
+enum QRCodeStatus {
+  active
+  expired
 }
 
 model Scanner {
@@ -171,3 +163,8 @@ model Config {
   createdAt DateTime @default(now())
 }
 
+enum Role {
+  USER
+  ADMIN
+  MERCHANT
+}
