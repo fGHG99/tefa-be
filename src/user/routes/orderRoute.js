@@ -1,6 +1,6 @@
 // routes/orderRoutes.js
 const express = require('express');
-const { createOrder, updateOrderStatus, markOrderReady, completeOrder } = require('../controllers/orderController');
+const { createOrder, updateOrderStatus, completeOrder } = require('../controllers/orderController');
 
 const router = express.Router();
 
@@ -8,10 +8,7 @@ const router = express.Router();
 router.post('/create', createOrder);
 
 // Update order status (Pending -> Processing or Cancelled)
-router.patch('/update-status', updateOrderStatus);
-
-// Mark order as ready
-router.patch('/ready', markOrderReady);
+router.patch('/update-status', updateOrderStatus);  
 
 // Complete order
 router.patch('/complete', completeOrder);

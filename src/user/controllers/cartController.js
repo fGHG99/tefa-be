@@ -134,7 +134,6 @@ const getCart = async (req, res) => {
 };
 
 const checkout = async (req, res) => {
-  console.log('Request Body:', req.body); // Debugging log
 
   const { userId } = req.body || {}; // Ambil userId dari request body
 
