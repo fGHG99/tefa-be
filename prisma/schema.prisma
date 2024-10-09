@@ -61,8 +61,9 @@ model Produk {
   price      Float
   imgUrl     String
   type       ProdukType
-  toko       Toko?       @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
-  tokoId     Int?
+  tokoId     String
+  toko       Toko?      @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
+  tokoName   String?     
   orderItems OrderItem[] 
   inventory  Inventory?  
   quantity   Int?
@@ -70,18 +71,18 @@ model Produk {
 }
 
 model Toko {
-  id       Int        @id @default(autoincrement())
-  tokoId   Int        @unique
-  name     String
+  tokoId   String       @id @default(uuid())
+  name     String       @unique
   desc     String?
   produk   Produk[]
+  cartItems CartItem[]
   favorite Favorite[]
   scanners Scanner[] 
   orders   Order[]
 }
 
 model Order {
-  id        Int                  @id @default(autoincrement())
+  orderId   String               @id @default(uuid())
   user      User                 @relation(fields: [userId], references: [id])
   userId    String
   status    OrderStatus          @default(Pending)
@@ -89,17 +90,16 @@ model Order {
   items     OrderItem[]
   toko      Toko                 @relation(fields: [tokoId], references: [id])
   tokoId    Int
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
-  qrCodes   QRCode[]             // One-to-many relation with QRCode
-  history   TransactionHistory[]   // One-to-many relation with TransactionHistory
-  notifications Notification[]    // Relasi ke notifikasi
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  qrCodes   QRCode[] // One-to-many relation with QRCode
+  history   TransactionHistory[] // One-to-many relation with TransactionHistory
 }
 
 model OrderItem {
   id       Int    @id @default(autoincrement())
-  order    Order  @relation(fields: [orderId], references: [id])
-  orderId  Int
+  order    Order  @relation(fields: [orderId], references: [orderId])
+  orderId  String
   produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
   produkId Int
   quantity Int
@@ -120,8 +120,6 @@ model CartItem {
   produkId  Int
   produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
   quantity  Int
-
-  @@unique([cartId, produkId]) // Satu produk hanya bisa ada sekali di satu cart
 }
 
 model Inventory {
@@ -135,33 +133,33 @@ model Favorite {
   id     Int  @id @default(autoincrement())
   user   User @relation(fields: [userId], references: [id])
   userId String
-  toko   Toko @relation(fields: [tokoId], references: [id])
-  tokoId Int
+  toko   Toko @relation(fields: [tokoId], references: [tokoId])
+  tokoId String
   favId  Int  @unique
 }
 
 model QRCode {
   id        Int          @id @default(autoincrement())
-  orderId   Int          @unique
+  orderId   String          @unique
   qrCodeUrl String       @unique
   expiresAt DateTime
   status    QRCodeStatus
-  order     Order        @relation(fields: [orderId], references: [id])
+  order     Order        @relation(fields: [orderId], references: [orderId])
 }
 
 model Scanner {
   id        Int      @id @default(autoincrement())
-  vendorId  Int
+  tokoId    String
   scannerId String   @unique
   createdAt DateTime @default(now())
 
-  vendor    Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
+  Vendor Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
 }
 
 model TransactionHistory {
   id        Int         @id @default(autoincrement())
-  order     Order       @relation(fields: [orderId], references: [id]) // Foreign key to Order
-  orderId   Int
+  order     Order       @relation(fields: [orderId], references: [orderId]) 
+  orderId   String
   status    OrderStatus
   timestamp DateTime    @default(now())
 }

@@ -1,80 +1,69 @@
 const { prisma } = require('../../utils/prisma');
 const QRCode = require('qrcode');
 
-// Create a new order
-async function createOrder(req, res) {
-    const { userId, tokoId, items } = req.body;
+// Create new orders for each Toko (merchant) involved
+const createOrder = async (userId, cartItems) => {
+    console.log("Creating order for user:", userId, "with items:", cartItems); // Debugging log
 
     try {
         // Fetch the products and their prices
-        const productIds = items.map(item => item.id);
+        const productIds = cartItems.map(item => item.produkId); // Ambil produkId dari cartItems
         const products = await prisma.produk.findMany({
             where: { id: { in: productIds } },
         });
 
-        // Map product prices for easy lookup
-        const productPrices = new Map(products.map(product => [product.id, product.price]));
+        // Check if products are found
+        if (products.length === 0) {
+            console.error("No products found for the given IDs:", productIds);
+            throw new Error('No products found for the provided item IDs');
+        }
 
-        // Calculate total price based on the prices from the Produk table
-        let totalAmount = items.reduce((sum, item) => {
-            const productPrice = productPrices.get(item.id);
-            return sum + (productPrice * item.quantity); // Multiply price by quantity
-        }, 0);
+        // Group items by Toko (merchant)
+        const itemsByToko = cartItems.reduce((acc, item) => {
+            const product = products.find(p => p.id === item.produkId);
+            const tokoId = product?.tokoId; // Use optional chaining to prevent errors
+
+            if (!tokoId) {
+                console.error("Product does not have a tokoId:", product);
+                return acc; // Skip if tokoId is not found
+            }
+
+            if (!acc[tokoId]) acc[tokoId] = [];
+            acc[tokoId].push({ ...item, price: product.price });
+            return acc;
+        }, {});
+
+        const orders = [];
 
         // Fetch the admin fee from the Config table
         const adminFeeConfig = await prisma.config.findUnique({
             where: { key: 'adminFee' },
         });
 
-        const adminFee = adminFeeConfig ? adminFeeConfig.value : 0;
+        const adminFee = adminFeeConfig ? parseFloat(adminFeeConfig.value) : 0; // Pastikan adminFee di parsing ke float
 
-        // Add admin fee to the total amount
-        totalAmount += adminFee;
+        // Create separate orders for each Toko
+        for (const tokoId in itemsByToko) {
+            const tokoItems = itemsByToko[tokoId];
 
-        // Create the order
-        const order = await prisma.order.create({
-            data: {
-                userId,
-                tokoId,
-                total: totalAmount,
-                status: 'Pending', // Order starts with 'Pending' status
-                items: {
-                    create: items.map(item => ({
-                        produkId: item.id, // Use 'id' as per your Produk model
-                        quantity: item.quantity,
-                        price: productPrices.get(item.id), // Use price from Produk table
-                    })),
-                },
-            },
-        });
-        res.status(201).json(order);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to create order' });
-    }
-}
+            // Calculate total amount for each order
+            let totalAmount = tokoItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmount += adminFee;
 
-// Update the status of an order and generate QR Code if status is 'Ready'
-async function updateOrderStatus(req, res) {
-    const { orderId, status } = req.body;
-
-    try {
-        // Update the order status
-        const order = await prisma.order.update({
-            where: { id: orderId },
-            data: { status },
-        });
-
-        // If the status is 'Ready', generate and store the QR code
-        if (status === 'Ready') {
-            const qrCodeUrl = await generateQRCode(orderId);
-
-            // Store the generated QR code in the database
-            await prisma.qRCode.create({
+            // Create the order
+            const order = await prisma.order.create({
                 data: {
-                    orderId: orderId,
-                    qrCodeUrl,
-                    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // QR code expires in 10 minutes
-                    status: 'active',
+                    userId: userId,
+                    tokoId: tokoId,
+                    total: totalAmount,
+                    status: 'Pending', // Order starts with 'Pending' status
+                    items: {
+                        create: tokoItems.map(item => ({
+                            produkId: item.produkId,
+                            quantity: item.quantity,
+                            price: item.price,
+                        })),
+                    },
                 },
             });
 
@@ -88,27 +77,32 @@ async function updateOrderStatus(req, res) {
             sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} telah selesai!`);
         }
 
-        res.status(200).json(order);
+        return orders; // Kembalikan orders yang telah dibuat
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update order status' });
+        console.error('Error creating order:', error);
+        throw new Error('Failed to create orders');
     }
-}
+};
 
 // Generate QR code based on order details
 async function generateQRCode(orderId) {
     try {
         // Fetch the order and related data
         const order = await prisma.order.findUnique({
-            where: { id: orderId },
+            where: { orderId }, // Change 'id' to 'orderId'
             include: {
                 user: true,
                 items: true,
             },
         });
 
+        if (!order) {
+            throw new Error(`Order with ID ${orderId} not found`);
+        }
+
         // Data to be included in the QR code
         const qrData = {
-            orderId: order.id,
+            orderId: order.orderId,
             userId: order.userId,
             total: order.total,
             status: order.status,
@@ -119,40 +113,84 @@ async function generateQRCode(orderId) {
             })),
         };
 
-        // Convert the data to JSON string and generate the QR code
+        // Generate the QR code as a data URL
         const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(qrData));
         return qrCodeUrl;
     } catch (error) {
-        console.error('Error generating QR code:', error);
+        console.error('Error generating QR code:', error.message);
         throw new Error('QR code generation failed');
     }
 }
 
-// Mark order as ready and generate QR code if necessary
-async function markOrderReady(req, res) {
-    const { orderId } = req.body;
+// Update the order status and handle logic based on status
+async function updateOrderStatus(req, res) {
+    const { orderId, status } = req.body;
 
     try {
-        // Update order status to 'Ready'
-        const order = await prisma.order.update({
-            where: { id: orderId },
-            data: { status: 'Ready' },
+        // Ensure the status is valid
+        if (!["Pending", "Processing", "Ready", "Completed", "Cancelled"].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status value' });
+        }
+
+        // Retrieve the current order
+        const order = await prisma.order.findUnique({
+            where: { orderId },
         });
 
-        // Generate and store QR code when the order is ready
-        const qrCodeUrl = await generateQRCode(orderId);
-        await prisma.qRCode.create({
-            data: {
-                orderId: orderId,
-                qrCodeUrl,
-                expiresAt: new Date(Date.now() + 10 * 60 * 1000), // QR code expires in 10 minutes
-                status: 'active',
-            },
-        });
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
 
-        res.status(200).json(order);
+        // Check the logic for status transitions
+        if (order.status === 'Pending' && status === 'Cancelled') {
+            // Merchant cancels the order
+            await prisma.order.update({
+                where: { orderId },
+                data: { status: 'Cancelled' },
+            });
+        } else if (order.status === 'Pending' && status === 'Processing') {
+            // Merchant accepts the order and moves it to processing
+            await prisma.order.update({
+                where: { orderId },
+                data: { status: 'Processing' },
+            });
+        } else if (order.status === 'Processing' && status === 'Ready') {
+            // Merchant marks order as ready
+            await prisma.order.update({
+                where: { orderId },
+                data: { status: 'Ready' },
+            });
+
+            // Generate QR code and store it
+            const qrCodeUrl = await generateQRCode(orderId);
+            await prisma.qRCode.create({
+                data: {
+                    orderId,
+                    qrCodeUrl,
+                    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+                    status: 'active',
+                },
+            });
+        } else if (order.status === 'Ready' && status === 'Completed') {
+            // User scans QR code within time limit, mark order as completed
+            await prisma.order.update({
+                where: { orderId },
+                data: { status: 'Completed' },
+            });
+
+            // Expire the QR code
+            await prisma.qRCode.update({
+                where: { orderId },
+                data: { status: 'expired' },
+            });
+        } else {
+            return res.status(400).json({ error: 'Invalid status transition' });
+        }
+
+        res.status(200).json({ message: `Order status updated to ${status}` });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to mark order as ready' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update order status' });
     }
 }
 
@@ -184,6 +222,5 @@ async function completeOrder(req, res) {
 module.exports = {
     createOrder,
     updateOrderStatus,
-    markOrderReady,
     completeOrder,
 };

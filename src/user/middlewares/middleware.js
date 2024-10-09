@@ -26,4 +26,12 @@
         }
     };
 
-    module.exports = { protect };
+    const isMerchant = (req, res, next) => {
+        if (req.user.role !== 'MERCHANT') {
+            return res.status(403).json({ error: 'Access denied, only merchants are allowed' });
+        }
+        next();
+    };
+    
+    module.exports = { protect, isMerchant };
+    

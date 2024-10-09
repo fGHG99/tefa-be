@@ -20,7 +20,7 @@ async function main() {
 
     console.log("Inserting data from products.js...");
 
-    // Fetch existing toko records to validate tokoId references
+    // Fetch existing toko records to validate tokoName references
     const tokoRecords = await prisma.toko.findMany();
     const tokoIds = new Set(tokoRecords.map((t) => t.tokoId));
 
@@ -34,9 +34,16 @@ async function main() {
       throw new Error("Some produk entries have invalid tokoId references.");
     }
 
+    // Prepare produk data with tokoId
+    const produkWithTokoId = produk.map(p => ({
+      ...p,
+      tokoId: tokoMap.get(p.tokoName), // Mengambil tokoId dari peta
+      tokoName: undefined, // Opsional: Hapus tokoName jika tidak diperlukan
+    }));
+
     // Insert produk data
     await prisma.produk.createMany({
-      data: produk,
+      data: produkWithTokoId,
     });
 
     console.log("Seeding completed successfully.");

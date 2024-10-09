@@ -1,9 +1,29 @@
 const { prisma } = require('../../utils/prisma');
+const { createOrder } = require('./orderController');
 
 const addItemToCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;
 
   try {
+    // Fetch the product to get its tokoId and tokoName
+    const product = await prisma.produk.findUnique({
+      where: { id: productId },
+      include: { toko: true } // Include toko to access tokoId and tokoName
+    });
+
+    console.log("Product fetched:", product); // Debugging log
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const tokoId = product.toko?.tokoId; // Access tokoId directly from the toko relation
+
+    // Check if tokoId exists
+    if (!tokoId) {
+      return res.status(400).json({ error: 'Toko not found for the product' });
+    }
+
     // Check if the user already has a cart
     let cart = await prisma.cart.findUnique({
       where: { userId },
@@ -18,7 +38,8 @@ const addItemToCart = async (req, res) => {
           items: {
             create: {
               produkId: productId,
-              quantity
+              quantity,
+              tokoId // Save the tokoId in CartItem
             }
           }
         },
@@ -44,9 +65,10 @@ const addItemToCart = async (req, res) => {
         // If item does not exist, create a new cart item
         await prisma.cartItem.create({
           data: {
-            cartId: cart.id,
+            cartId: cart.id, // Use cart.id here
             produkId: productId,
-            quantity
+            quantity,
+            tokoId // Save the tokoId in CartItem
           }
         });
       }
@@ -58,22 +80,95 @@ const addItemToCart = async (req, res) => {
       include: { items: true }
     });
 
-    try { 
-      await prisma.user.update({
-        where: { id: userId },
-        data: { cartId: cart.id }
-      });
-      console.log(`User ${userId} updated with cartId ${cart.id}`);
-    } catch (error) {
-      console.error('Error updating user cartId:', error); // Log error if update fails
-    }
-
     res.status(200).json(updatedCart);
   } catch (error) {
+    console.error('Error adding item to cart:', error);
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
+const getCart = async (req, res) => {
+  const { userId, cartId } = req.params;
+
+  // Convert cartId to an integer
+  const cartIdInt = parseInt(cartId);
+
+  if (isNaN(cartIdInt)) {
+    return res.status(400).json({ error: 'Invalid cart ID format' });
+  }
+
+  try {
+    // Find the user's cart based on userId and cartId
+    const cart = await prisma.cart.findFirst({
+      where: {
+        userId: userId,
+        id: cartIdInt
+      },
+      include: {
+        items: {
+          include: {
+            produk: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                tokoName: true // Fetching tokoName instead of tokoId
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Check if the cart exists and has items
+    if (!cart || cart.items.length === 0) {
+      return res.status(404).json({ message: 'Cart is empty or not found' });
+    }
+
+    // Return the cart and items, now including tokoName instead of tokoId
+    return res.status(200).json(cart);
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    return res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+const checkout = async (req, res) => {
+
+  const { userId } = req.body || {}; // Ambil userId dari request body
+
+  // Periksa apakah req.body didefinisikan
+  if (!req.body) {
+      return res.status(400).json({ error: 'Request body is missing' });
+  }
+  
+  // Periksa apakah userId ada
+  if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+  }
+
+  try {
+      // Ambil cart items berdasarkan userId
+      const cart = await prisma.cart.findUnique({
+          where: { userId },
+          include: { items: true }, // Mengambil cartItems
+      });
+
+      if (!cart || cart.items.length === 0) {
+          return res.status(400).json({ error: 'Cart is empty or does not exist' });
+      }
+
+      // Panggil createOrder dengan userId dan cart items
+      const orders = await createOrder(userId, cart.items);
+      return res.status(201).json(orders);
+  } catch (error) {
+      console.error('Error during checkout:', error);
+      return res.status(500).json({ error: 'Something went wrong during checkout' });
+  }
+};
+
 module.exports = {
-  addItemToCart
+  addItemToCart,
+  checkout,
+  getCart
 };
