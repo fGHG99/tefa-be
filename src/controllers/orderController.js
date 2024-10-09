@@ -138,6 +138,30 @@ async function markOrderReady(req, res) {
     }
 }
 
+// Fungsi untuk mencetak struk
+const cetakStruk = (order) => {
+    console.log('--- Struk Pesanan ---');
+    console.log(`Nomor Pesanan: ${order.id}`);
+    
+    // Gantikan dengan nama pelanggan jika ada (misalnya order.user.name)
+    console.log(`Nama Pelanggan: ${order.user ? order.user.name : order.userId}`);
+    
+    console.log('Barang yang dipesan:');
+    order.items.forEach(item => {
+        console.log(`- Produk ID: ${item.produkId} | Quantity: ${item.quantity} | Harga satuan: ${item.price} | Subtotal: ${item.quantity * item.price}`);
+    });
+    
+    // Format angka untuk harga agar lebih mudah dibaca
+    const formattedTotal = order.total.toLocaleString('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+    });
+
+    console.log(`Total Harga: ${formattedTotal}`);
+    console.log(`Waktu Pesanan: ${new Date().toLocaleString()}`);
+    console.log('--- Terima Kasih ---');
+};
+
 // Complete the order and expire QR code
 async function completeOrder(req, res) {
     const { orderId } = req.body;
@@ -147,6 +171,7 @@ async function completeOrder(req, res) {
         const order = await prisma.order.update({
             where: { id: orderId },
             data: { status: 'Completed' },
+            include: { items: true, user: true  }, // Include items to display in the receipt
         });
 
         // Mark the QR code as expired
@@ -155,12 +180,14 @@ async function completeOrder(req, res) {
             data: { status: 'expired' },
         });
 
+        // Cetak struk ketika pesanan diselesaikan
+        cetakStruk(order);
+
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ error: 'Failed to complete order' });
     }
 }
-
 module.exports = {
     createOrder,
     updateOrderStatus,

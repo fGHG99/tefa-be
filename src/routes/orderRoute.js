@@ -1,6 +1,5 @@
-// routes/orderRoutes.js
 const express = require('express');
-const { createOrder, updateOrderStatus, markOrderReady, completeOrder } = require('../controllers/ordercontroller');
+const { createOrder, updateOrderStatus, markOrderReady, completeOrder } = require('../controllers/orderController');
 
 const router = express.Router();
 
@@ -13,7 +12,7 @@ router.patch('/update-status', updateOrderStatus);
 // Mark order as ready
 router.patch('/ready', markOrderReady);
 
-// Complete order
+// Complete order (Menggunakan PATCH method saja)
 router.patch('/complete', completeOrder);
 
 module.exports = router;

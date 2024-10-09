@@ -4,7 +4,7 @@ const {
   getAllTransactionHistories,
   getTransactionHistoryById,  // Import the new function
   createTransactionHistory
-} = require('../controllers/histroyController');
+} = require('../controllers/historyController');
 
 // GET semua transaction history
 router.get('/', getAllTransactionHistories);
