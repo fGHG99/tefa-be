@@ -67,7 +67,6 @@ const createOrder = async (userId, cartItems) => {
                 },
             });
             
-
             orders.push(order);
         }
 
@@ -78,14 +77,57 @@ const createOrder = async (userId, cartItems) => {
     }
 };
 
+// Generate QR code based on order details
+async function generateQRCode(orderId) {
+    try {
+        // Fetch the order and related data
+        const order = await prisma.order.findUnique({
+            where: { orderId }, // Change 'id' to 'orderId'
+            include: {
+                user: true,
+                items: true,
+            },
+        });
+
+        if (!order) {
+            throw new Error(`Order with ID ${orderId} not found`);
+        }
+
+        // Data to be included in the QR code
+        const qrData = {
+            orderId: order.orderId,
+            userId: order.userId,
+            total: order.total,
+            status: order.status,
+            items: order.items.map(item => ({
+                produkId: item.produkId,
+                quantity: item.quantity,
+                price: item.price,
+            })),
+        };
+
+        // Generate the QR code as a data URL
+        const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(qrData));
+        return qrCodeUrl;
+    } catch (error) {
+        console.error('Error generating QR code:', error.message);
+        throw new Error('QR code generation failed');
+    }
+}
+
 // Update the status of an order and generate QR Code if status is 'Ready'
 async function updateOrderStatus(req, res) {
     const { orderId, status } = req.body;
 
     try {
+        // Ensure the status is a valid OrderStatus
+        if (!["Pending", "Processing", "Ready", "Completed", "Cancelled"].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status value' });
+        }
+
         // Update the order status
         const order = await prisma.order.update({
-            where: { id: orderId },
+            where: { orderId },
             data: { status },
         });
 
@@ -106,41 +148,8 @@ async function updateOrderStatus(req, res) {
 
         res.status(200).json(order);
     } catch (error) {
+        console.error(error); // Log the error for debugging
         res.status(500).json({ error: 'Failed to update order status' });
-    }
-}
-
-// Generate QR code based on order details
-async function generateQRCode(orderId) {
-    try {
-        // Fetch the order and related data
-        const order = await prisma.order.findUnique({
-            where: { id: orderId },
-            include: {
-                user: true,
-                items: true,
-            },
-        });
-
-        // Data to be included in the QR code
-        const qrData = {
-            orderId: order.id,
-            userId: order.userId,
-            total: order.total,
-            status: order.status,
-            items: order.items.map(item => ({
-                produkId: item.produkId,
-                quantity: item.quantity,
-                price: item.price,
-            })),
-        };
-
-        // Convert the data to JSON string and generate the QR code
-        const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(qrData));
-        return qrCodeUrl;
-    } catch (error) {
-        console.error('Error generating QR code:', error);
-        throw new Error('QR code generation failed');
     }
 }
 
