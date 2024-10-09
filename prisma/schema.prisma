@@ -26,23 +26,30 @@ enum QRCodeStatus {
 }
 
 enum Role {
-  USER
   ADMIN
-  MERCHANT
+  SELLER
+  USER
 }
 
 model User {
-  id               String        @id @default(uuid())
-  email            String        @unique
-  name             String?
-  password         String
-  role             Role       @default(USER)
-  refreshToken     String? 
-  Token            Token[]
-  orders           Order[]
-  cart             Cart?   @relation
-  cartId           Int?    
-  favorites        Favorite[]
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String?
+  password     String
+  role         Role       @default(USER)
+  refreshToken String?
+  Token        Token[]
+  orders       Order[]
+  cart         Cart?      @relation
+  cartId       Int?
+  favorites    Favorite[]
+
+  // Informasi tambahan untuk seller
+  verified Boolean   @default(false) // Apakah seller sudah diverifikasi
+  rating   Float? // Rating seller
+  joinedAt DateTime? @default(now()) // Tanggal bergabung
+  toko     Toko?     @relation // Tambahkan field ini untuk relasi ke Toko
+  deliveries       Delivery[]
 }
 
 model Token {
@@ -54,6 +61,20 @@ model Token {
   expiresAt DateTime
 }
 
+model Delivery {
+  id          Int      @id @default(autoincrement())
+  status      String   @default("Pending") // Pending, Delivered, etc.
+  address     String
+  totalPrice  Float
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   // Ubah tipe data dari Int ke String
+  toko        Toko     @relation(fields: [tokoId], references: [tokoId])
+  tokoId      String   // Ubah tipe data dari Int ke String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
 model Produk {
   id         Int         @id @default(autoincrement())
   title      String
@@ -61,23 +82,32 @@ model Produk {
   imgUrl     String
   type       ProdukType
   tokoId     String
-  toko       Toko?      @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
-  tokoName   String?     
-  orderItems OrderItem[] 
-  inventory  Inventory?  
+  toko       Toko?       @relation(fields: [tokoId], references: [tokoId], onDelete: Cascade)
+  tokoName   String?
+  orderItems OrderItem[]
+  inventory  Inventory?
   quantity   Int?
-  cartItems  CartItem[] 
+  cartItems  CartItem[]
 }
 
 model Toko {
-  tokoId   String       @id @default(uuid())
-  name     String       @unique
-  desc     String?
-  produk   Produk[]
+  tokoId    String     @id @default(uuid())
+  name      String     @unique
+  desc      String?
+  produk    Produk[]
   cartItems CartItem[]
-  favorite Favorite[]
-  scanners Scanner[] 
-  orders   Order[]
+  favorite  Favorite[]
+  scanners  Scanner[]
+  orders    Order[]
+  adminFee  Float?
+
+  verified Boolean @default(false) // Apakah toko sudah diverifikasi
+  rating   Float? // Rating toko
+
+  // Definisi relasi ke User
+  seller   User   @relation(fields: [sellerId], references: [id]) // Hanya di sini
+  sellerId String @unique // Harus unik jika satu seller untuk satu toko
+  deliveries  Delivery[]
 }
 
 model Order {
@@ -89,8 +119,8 @@ model Order {
   items     OrderItem[]
   toko      Toko                 @relation(fields: [tokoId], references: [tokoId])
   tokoId    String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
   qrCodes   QRCode[] // One-to-many relation with QRCode
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
 }
@@ -106,21 +136,21 @@ model OrderItem {
 }
 
 model Cart {
-  id        Int        @id @default(autoincrement())
-  user      User       @relation(fields: [userId], references: [id])
-  userId    String     @unique 
-  items     CartItem[]
+  id     Int        @id @default(autoincrement())
+  user   User       @relation(fields: [userId], references: [id])
+  userId String     @unique
+  items  CartItem[]
 }
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  cartId    Int
-  cart      Cart     @relation(fields: [cartId], references: [id])
-  produkId  Int
-  produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
-  quantity  Int
-  tokoId    String
-  toko      Toko     @relation(fields: [tokoId], references: [tokoId]) 
+  id       Int    @id @default(autoincrement())
+  cartId   Int
+  cart     Cart   @relation(fields: [cartId], references: [id])
+  produkId Int
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+  quantity Int
+  tokoId   String
+  toko     Toko   @relation(fields: [tokoId], references: [tokoId])
 }
 
 model Inventory {
@@ -131,17 +161,17 @@ model Inventory {
 }
 
 model Favorite {
-  id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
   userId String
-  toko   Toko @relation(fields: [tokoId], references: [tokoId])
+  toko   Toko   @relation(fields: [tokoId], references: [tokoId])
   tokoId String
-  favId  Int  @unique
+  favId  Int    @unique
 }
 
 model QRCode {
   id        Int          @id @default(autoincrement())
-  orderId   String          @unique
+  orderId   String       @unique
   qrCodeUrl String       @unique
   expiresAt DateTime
   status    QRCodeStatus
@@ -159,7 +189,7 @@ model Scanner {
 
 model TransactionHistory {
   id        Int         @id @default(autoincrement())
-  order     Order       @relation(fields: [orderId], references: [orderId]) 
+  order     Order       @relation(fields: [orderId], references: [orderId])
   orderId   String
   status    OrderStatus
   timestamp DateTime    @default(now())
@@ -167,8 +197,7 @@ model TransactionHistory {
 
 model Config {
   id        Int      @id @default(autoincrement())
-  key       String   @unique 
-  value     Float    
+  key       String   @unique
+  value     Float
   createdAt DateTime @default(now())
 }
-
