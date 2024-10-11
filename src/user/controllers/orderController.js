@@ -66,8 +66,15 @@ const createOrder = async (userId, cartItems) => {
                     },
                 },
             });
-            
-            orders.push(order);
+
+            // Notifikasi bahwa pesanan siap (status 'Ready')
+            sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} sudah siap!`);
+            sendNotificationToToko(order.tokoId, `Pesanan dengan ID: ${orderId} sudah siap di toko Anda!`);
+        }
+
+        // If the status is 'Completed', send a notification
+        if (status === 'Completed') {
+            sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} telah selesai!`);
         }
 
         return orders; // Kembalikan orders yang telah dibuat
@@ -204,12 +211,14 @@ async function completeOrder(req, res) {
             data: { status: 'expired' },
         });
 
+        // Notifikasi bahwa pesanan sudah selesai
+        sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} telah selesai!`);
+
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ error: 'Failed to complete order' });
     }
 }
-
 module.exports = {
     createOrder,
     updateOrderStatus,

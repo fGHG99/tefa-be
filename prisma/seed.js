@@ -22,13 +22,16 @@ async function main() {
 
     // Fetch existing toko records to validate tokoName references
     const tokoRecords = await prisma.toko.findMany();
-    const tokoMap = new Map(tokoRecords.map(t => [t.name, t.tokoId])); // Peta untuk menghubungkan nama toko dengan id
+    const tokoIds = new Set(tokoRecords.map((t) => t.tokoId));
 
     // Validate produk data
-    const invalidProduk = produk.filter(p => !tokoMap.has(p.tokoName));
+    const invalidProduk = produk.filter((p) => !tokoIds.has(p.tokoId));
     if (invalidProduk.length > 0) {
-      console.error("Invalid produk data with non-existent tokoName:", invalidProduk);
-      throw new Error("Some produk entries have invalid tokoName references.");
+      console.error(
+        "Invalid produk data with non-existent tokoId:",
+        invalidProduk
+      );
+      throw new Error("Some produk entries have invalid tokoId references.");
     }
 
     // Prepare produk data with tokoId
