@@ -28,7 +28,7 @@ enum QRCodeStatus {
 enum Role {
   USER
   ADMIN
-  MERCHANT
+  MERCHANT  
 }
 
 model User {
@@ -36,14 +36,13 @@ model User {
   email            String        @unique
   name             String?
   password         String
-  role             Role          @default(USER)
+  role             Role       @default(USER)
   refreshToken     String? 
-  tokens           Token[]
+  Token            Token[]
   orders           Order[]
-  cart             Cart?         @relation
+  cart             Cart?   @relation
   cartId           Int?    
   favorites        Favorite[]
-  notifications    Notification[] // Relasi ke notifikasi
 }
 
 model Token {
@@ -88,12 +87,16 @@ model Order {
   status    OrderStatus          @default(Pending)
   total     Float
   items     OrderItem[]
-  toko      Toko                 @relation(fields: [tokoId], references: [id])
-  tokoId    Int
+  toko      Toko                 @relation(fields: [tokoId], references: [tokoId])
+  tokoId    String
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   qrCodes   QRCode[] // One-to-many relation with QRCode
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
+  deliveryMethod DeliveryMethod
+  address       String?
+  recipientName String
+  paymentMethod String
 }
 
 model OrderItem {
@@ -120,6 +123,8 @@ model CartItem {
   produkId  Int
   produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
   quantity  Int
+  tokoId    String
+  toko      Toko     @relation(fields: [tokoId], references: [tokoId]) 
 }
 
 model Inventory {
@@ -153,7 +158,7 @@ model Scanner {
   scannerId String   @unique
   createdAt DateTime @default(now())
 
-  Vendor Toko @relation(fields: [vendorId], references: [id]) // Relation to Toko model
+  Vendor Toko @relation(fields: [tokoId], references: [tokoId]) // Relation to Toko model
 }
 
 model TransactionHistory {
@@ -171,13 +176,7 @@ model Config {
   createdAt DateTime @default(now())
 }
 
-model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  orderId   Int?          // Jika notifikasi terkait dengan order tertentu
-  order     Order?        @relation(fields: [orderId], references: [id])
-  message   String
-  isRead    Boolean       @default(false) // Status baca/not baca
-  createdAt DateTime     @default(now())
+enum DeliveryMethod {
+  pickup
+  delivery
 }

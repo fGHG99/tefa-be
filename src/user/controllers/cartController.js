@@ -134,38 +134,34 @@ const getCart = async (req, res) => {
 };
 
 const checkout = async (req, res) => {
+  const { userId, deliveryMethod, address, recipientName, paymentMethod } = req.body || {};
 
-  const { userId } = req.body || {}; // Ambil userId dari request body
-
-  // Periksa apakah req.body didefinisikan
-  if (!req.body) {
-      return res.status(400).json({ error: 'Request body is missing' });
-  }
-  
-  // Periksa apakah userId ada
-  if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
+  if (!req.body || !userId || !deliveryMethod || !recipientName || !paymentMethod) {
+    return res.status(400).json({ error: 'Missing required fields: userId, deliveryMethod, recipientName, paymentMethod' });
   }
 
   try {
-      // Ambil cart items berdasarkan userId
-      const cart = await prisma.cart.findUnique({
-          where: { userId },
-          include: { items: true }, // Mengambil cartItems
-      });
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+      include: { items: true }
+    });
 
-      if (!cart || cart.items.length === 0) {
-          return res.status(400).json({ error: 'Cart is empty or does not exist' });
-      }
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ error: 'Cart is empty or does not exist' });
+    }
 
-      // Panggil createOrder dengan userId dan cart items
-      const orders = await createOrder(userId, cart.items);
-      return res.status(201).json(orders);
+    if (deliveryMethod === 'delivery' && !address) {
+      return res.status(400).json({ error: 'Address is required for delivery' });
+    }
+
+    const orders = await createOrder(userId, cart.items, deliveryMethod, address, recipientName, paymentMethod);
+    return res.status(201).json(orders);
   } catch (error) {
-      console.error('Error during checkout:', error);
-      return res.status(500).json({ error: 'Something went wrong during checkout' });
+    console.error('Error during checkout:', error);
+    return res.status(500).json({ error: 'Something went wrong during checkout' });
   }
 };
+
 
 module.exports = {
   addItemToCart,

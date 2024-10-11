@@ -2,8 +2,16 @@ const { prisma } = require('../../utils/prisma');
 const QRCode = require('qrcode');
 
 // Create new orders for each Toko (merchant) involved
-const createOrder = async (userId, cartItems) => {
+const createOrder = async (userId, cartItems, deliveryMethod, address, recipientName, paymentMethod) => {
     console.log("Creating order for user:", userId, "with items:", cartItems); // Debugging log
+
+    if (!deliveryMethod || !recipientName || !paymentMethod) {
+        throw new Error('Delivery method, recipient name, and payment method are required.');
+    }
+
+    if (deliveryMethod === 'delivery' && !address) {
+        throw new Error('Address is required for delivery.');
+    }
 
     try {
         // Fetch the products and their prices
@@ -57,6 +65,10 @@ const createOrder = async (userId, cartItems) => {
                     tokoId: tokoId,
                     total: totalAmount,
                     status: 'Pending', // Order starts with 'Pending' status
+                    deliveryMethod: deliveryMethod, // pickup or delivery
+                    address: deliveryMethod === 'delivery' ? address : null,
+                    recipientName: recipientName,
+                    paymentMethod: paymentMethod,
                     items: {
                         create: tokoItems.map(item => ({
                             produkId: item.produkId,
@@ -67,14 +79,11 @@ const createOrder = async (userId, cartItems) => {
                 },
             });
 
-            // Notifikasi bahwa pesanan siap (status 'Ready')
-            sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} sudah siap!`);
-            sendNotificationToToko(order.tokoId, `Pesanan dengan ID: ${orderId} sudah siap di toko Anda!`);
-        }
+            orders.push(order);
 
-        // If the status is 'Completed', send a notification
-        if (status === 'Completed') {
-            sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} telah selesai!`);
+            // Notifikasi bahwa pesanan siap (status 'Ready')
+            sendNotification(order.userId, `Pesanan Anda dengan ID: ${order.id} sudah siap!`);
+            sendNotificationToToko(order.tokoId, `Pesanan dengan ID: ${order.id} sudah siap di toko Anda!`);
         }
 
         return orders; // Kembalikan orders yang telah dibuat
@@ -89,7 +98,7 @@ async function generateQRCode(orderId) {
     try {
         // Fetch the order and related data
         const order = await prisma.order.findUnique({
-            where: { orderId }, // Change 'id' to 'orderId'
+            where: { id: orderId }, // Change 'id' to 'orderId'
             include: {
                 user: true,
                 items: true,
@@ -102,7 +111,7 @@ async function generateQRCode(orderId) {
 
         // Data to be included in the QR code
         const qrData = {
-            orderId: order.orderId,
+            orderId: order.id,
             userId: order.userId,
             total: order.total,
             status: order.status,
@@ -134,7 +143,7 @@ async function updateOrderStatus(req, res) {
 
         // Retrieve the current order
         const order = await prisma.order.findUnique({
-            where: { orderId },
+            where: { id: orderId },
         });
 
         if (!order) {
@@ -145,19 +154,19 @@ async function updateOrderStatus(req, res) {
         if (order.status === 'Pending' && status === 'Cancelled') {
             // Merchant cancels the order
             await prisma.order.update({
-                where: { orderId },
+                where: { id: orderId },
                 data: { status: 'Cancelled' },
             });
         } else if (order.status === 'Pending' && status === 'Processing') {
             // Merchant accepts the order and moves it to processing
             await prisma.order.update({
-                where: { orderId },
+                where: { id: orderId },
                 data: { status: 'Processing' },
             });
         } else if (order.status === 'Processing' && status === 'Ready') {
             // Merchant marks order as ready
             await prisma.order.update({
-                where: { orderId },
+                where: { id: orderId },
                 data: { status: 'Ready' },
             });
 
@@ -174,13 +183,13 @@ async function updateOrderStatus(req, res) {
         } else if (order.status === 'Ready' && status === 'Completed') {
             // User scans QR code within time limit, mark order as completed
             await prisma.order.update({
-                where: { orderId },
+                where: { id: orderId },
                 data: { status: 'Completed' },
             });
 
             // Expire the QR code
             await prisma.qRCode.update({
-                where: { orderId },
+                where: { orderId: orderId },
                 data: { status: 'expired' },
             });
         } else {
@@ -219,6 +228,7 @@ async function completeOrder(req, res) {
         res.status(500).json({ error: 'Failed to complete order' });
     }
 }
+
 module.exports = {
     createOrder,
     updateOrderStatus,
