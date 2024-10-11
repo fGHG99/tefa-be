@@ -9,19 +9,24 @@ const orderRoute = require('./user/routes/orderRoute');
 const historyRoute = require('./user/routes/historyRoute');
 const productRoute = require('./user/routes/productRoute');
 const configRoute = require('./user/routes/feeRoute');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 
 // Enable CORS
-const corsOptions = {
-    origin: 'https://api-mesan.curaweda.com/',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-};
 
-app.use(cors(corsOptions));
-    
+app.use(cors({
+    origin: ['https://mesan.curaweda.com'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, 
+}));
+  
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 app.use('/auth', authcontroller);
 
