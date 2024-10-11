@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-    origin: 'http://localhost:5173', 
+    origin: 'http://localhost:5173', 'https://mesan.curaweda.com/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, 
 }));    
