@@ -16,11 +16,14 @@ app.use(express.json());
 
 // Enable CORS
 
-app.use(cors({
-    origin: ['https://mesan.curaweda.com'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, 
-}));
+const corsOptions = {
+    origin: 'https://mesan.curaweda.com', // Ganti dengan origin frontend Anda
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Perhatikan bahwa 'OPTIONS' seharusnya ditulis dengan benar
+    credentials: true, // Jika Anda ingin mengizinkan pengiriman cookie
+};
+
+app.use(cors(corsOptions));
+
   
 
 // Serve static files from the "public" directory
