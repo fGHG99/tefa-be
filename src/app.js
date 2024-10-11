@@ -14,11 +14,14 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-app.use(cors({
-    origin: 'http://localhost:5173', 'https://mesan.curaweda.com/',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, 
-}));    
+const corsOptions = {
+    origin: 'https://api-mesan.curaweda.com/',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
+    
 
 app.use('/auth', authcontroller);
 
