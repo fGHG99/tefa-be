@@ -1,5 +1,5 @@
 const express = require('express');
-const { scanQRCode } = require('../controllers/scannerController');
+const { scanQRCode } = require('../controllers/ScannerController');
 
 const router = express.Router();
 

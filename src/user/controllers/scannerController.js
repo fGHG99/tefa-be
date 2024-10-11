@@ -1,4 +1,4 @@
-    const { prisma } = require('../../utils/prisma');
+    const { prisma } = require('../../utils/Prisma');
 
     async function scanQRCode(req, res) {
         const { qrCodeUrl } = req.body;

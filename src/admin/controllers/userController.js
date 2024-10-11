@@ -1,7 +1,7 @@
 const express = require('express');
 const userModel = require('../models/userModel');
-const { success, error } = require('../../utils/res');
-const { protect } = require('../middlewares/middleware')
+const { success, error } = require('../../utils/Res');
+const { protect } = require('../middlewares/Middleware')
 const router = express.Router();
 
 router.post("/admin-login", async (req, res) => {

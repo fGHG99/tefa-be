@@ -1,4 +1,4 @@
-const { prisma } = require('../../utils/prisma');
+const { prisma } = require('../../utils/Prisma');
 const QRCode = require('qrcode');
 
 // Create new orders for each Toko (merchant) involved

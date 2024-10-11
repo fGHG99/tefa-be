@@ -1,4 +1,4 @@
-const { prisma } = require('../../utils/prisma');
+const { prisma } = require('../../utils/Prisma');
 const bcrypt = require('bcrypt');
 
 // Create a new user
