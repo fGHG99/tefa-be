@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const authcontroller = require('./user/controllers/authController');
+const authcontroller = require('./user/controllers/authcontroller');
 const userController = require('./user/controllers/userController');
 const scannerRoute = require('./user/routes/scannerRoute');
 const favoriteRoute = require('./user/routes/favoriteRoute');

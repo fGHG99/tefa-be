@@ -1,0 +1,844 @@
+
+  [2024-10-09T01:47:26.317Z] Error: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:44
+
+  51 try {
+  52   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  53 
+→ 54   const newProduct = await prisma.produk.create({
+         data: {
+           title: "Martabak mie",
+           price: 10000,
+           imgUrl: "http://example.com/product1.jpg",
+           type: "Food",
+           toko: {
+             connect: {
+               tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+             }
+           },
+           inventory: {
+             create: {
+       +       quantity: Int
+             }
+           }
+         }
+       })
+
+Argument `quantity` is missing.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:44
+
+  51 try {
+  52   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  53 
+→ 54   const newProduct = await prisma.produk.create({
+         data: {
+           title: "Martabak mie",
+           price: 10000,
+           imgUrl: "http://example.com/product1.jpg",
+           type: "Food",
+           toko: {
+             connect: {
+               tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+             }
+           },
+           inventory: {
+             create: {
+       +       quantity: Int
+             }
+           }
+         }
+       })
+
+Argument `quantity` is missing.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:24)
+  
+  -------------------------------------
+  
+  [2024-10-09T01:50:52.121Z] Error: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:44
+
+  51 try {
+  52   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  53 
+→ 54   const newProduct = await prisma.produk.create({
+         data: {
+           title: "New Product",
+           price: 99.99,
+           imgUrl: "http://example.com/image.jpg",
+           type: "Electronics",
+                 ~~~~~~~~~~~~~
+           toko: {
+             connect: {
+               tokoId: 1
+             }
+           },
+           inventory: {
+             create: {
+               quantity: 50
+             }
+           }
+         }
+       })
+
+Invalid value for argument `type`. Expected ProdukType.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:44
+
+  51 try {
+  52   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  53 
+→ 54   const newProduct = await prisma.produk.create({
+         data: {
+           title: "New Product",
+           price: 99.99,
+           imgUrl: "http://example.com/image.jpg",
+           type: "Electronics",
+                 ~~~~~~~~~~~~~
+           toko: {
+             connect: {
+               tokoId: 1
+             }
+           },
+           inventory: {
+             create: {
+               quantity: 50
+             }
+           }
+         }
+       })
+
+Invalid value for argument `type`. Expected ProdukType.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:54:24)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:01:44.347Z] Error: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "url_to_image",
+         type: undefined,
+         toko: {
+           connect: {
+             tokoId: undefined,
+     ?       name?: String,
+     ?       AND?: TokoWhereInput | TokoWhereInput[],
+     ?       OR?: TokoWhereInput[],
+     ?       NOT?: TokoWhereInput | TokoWhereInput[],
+     ?       desc?: StringNullableFilter | String | Null,
+     ?       produk?: ProdukListRelationFilter,
+     ?       cartItems?: CartItemListRelationFilter,
+     ?       favorite?: FavoriteListRelationFilter,
+     ?       scanners?: ScannerListRelationFilter,
+     ?       orders?: OrderListRelationFilter
+           }
+         },
+         inventory: {
+           update: {
+             quantity: undefined
+           }
+         }
+       }
+     })
+
+Argument `connect` of type TokoWhereUniqueInput needs at least one of `tokoId` or `name` arguments. Available options are marked with ?.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "url_to_image",
+         type: undefined,
+         toko: {
+           connect: {
+             tokoId: undefined,
+     ?       name?: String,
+     ?       AND?: TokoWhereInput | TokoWhereInput[],
+     ?       OR?: TokoWhereInput[],
+     ?       NOT?: TokoWhereInput | TokoWhereInput[],
+     ?       desc?: StringNullableFilter | String | Null,
+     ?       produk?: ProdukListRelationFilter,
+     ?       cartItems?: CartItemListRelationFilter,
+     ?       favorite?: FavoriteListRelationFilter,
+     ?       scanners?: ScannerListRelationFilter,
+     ?       orders?: OrderListRelationFilter
+           }
+         },
+         inventory: {
+           update: {
+             quantity: undefined
+           }
+         }
+       }
+     })
+
+Argument `connect` of type TokoWhereUniqueInput needs at least one of `tokoId` or `name` arguments. Available options are marked with ?.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async updateProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:28)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:03:37.736Z] Error: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "http://example.com/updated_image.jpg",
+         type: "Electronics",
+               ~~~~~~~~~~~~~
+         toko: {
+           connect: {
+             tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+           }
+         },
+         inventory: {
+           update: {
+             quantity: 30
+           }
+         }
+       }
+     })
+
+Invalid value for argument `type`. Expected ProdukType.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "http://example.com/updated_image.jpg",
+         type: "Electronics",
+               ~~~~~~~~~~~~~
+         toko: {
+           connect: {
+             tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+           }
+         },
+         inventory: {
+           update: {
+             quantity: 30
+           }
+         }
+       }
+     })
+
+Invalid value for argument `type`. Expected ProdukType.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async updateProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:28)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:03:59.479Z] Error: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "http://example.com/updated_image.jpg",
+         type: "Electronics",
+               ~~~~~~~~~~~~~
+         toko: {
+           connect: {
+             tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+           }
+         },
+         inventory: {
+           update: {
+             quantity: 30
+           }
+         }
+       }
+     })
+
+Invalid value for argument `type`. Expected ProdukType.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: "Mie martabak",
+         price: 10000,
+         imgUrl: "http://example.com/updated_image.jpg",
+         type: "Electronics",
+               ~~~~~~~~~~~~~
+         toko: {
+           connect: {
+             tokoId: "cb7c5266-406d-44af-aef0-286af04e0553"
+           }
+         },
+         inventory: {
+           update: {
+             quantity: 30
+           }
+         }
+       }
+     })
+
+Invalid value for argument `type`. Expected ProdukType.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async updateProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:28)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:05:52.597Z] Error: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: undefined,
+         price: undefined,
+         imgUrl: undefined,
+         type: undefined,
+         toko: {
+           connect: {
+             tokoId: undefined,
+     ?       name?: String,
+     ?       AND?: TokoWhereInput | TokoWhereInput[],
+     ?       OR?: TokoWhereInput[],
+     ?       NOT?: TokoWhereInput | TokoWhereInput[],
+     ?       desc?: StringNullableFilter | String | Null,
+     ?       produk?: ProdukListRelationFilter,
+     ?       cartItems?: CartItemListRelationFilter,
+     ?       favorite?: FavoriteListRelationFilter,
+     ?       scanners?: ScannerListRelationFilter,
+     ?       orders?: OrderListRelationFilter
+           }
+         },
+         inventory: {
+           update: {
+             quantity: undefined
+           }
+         }
+       }
+     })
+
+Argument `connect` of type TokoWhereUniqueInput needs at least one of `tokoId` or `name` arguments. Available options are marked with ?.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.update()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:48
+
+  79 const { id } = req.params;
+  80 const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  81 
+→ 82 const updatedProduct = await prisma.produk.update({
+       where: {
+         id: 96
+       },
+       data: {
+         title: undefined,
+         price: undefined,
+         imgUrl: undefined,
+         type: undefined,
+         toko: {
+           connect: {
+             tokoId: undefined,
+     ?       name?: String,
+     ?       AND?: TokoWhereInput | TokoWhereInput[],
+     ?       OR?: TokoWhereInput[],
+     ?       NOT?: TokoWhereInput | TokoWhereInput[],
+     ?       desc?: StringNullableFilter | String | Null,
+     ?       produk?: ProdukListRelationFilter,
+     ?       cartItems?: CartItemListRelationFilter,
+     ?       favorite?: FavoriteListRelationFilter,
+     ?       scanners?: ScannerListRelationFilter,
+     ?       orders?: OrderListRelationFilter
+           }
+         },
+         inventory: {
+           update: {
+             quantity: undefined
+           }
+         }
+       }
+     })
+
+Argument `connect` of type TokoWhereUniqueInput needs at least one of `tokoId` or `name` arguments. Available options are marked with ?.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async updateProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:82:28)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:47:42.065Z] Error: 
+Invalid `prisma.produk.findUnique()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:32:41
+
+  29 const getProductById = async (req, res) => {
+  30   try {
+  31     const { id } = req.params;
+→ 32     const product = await prisma.produk.findUnique({
+           where: {
+         +   id: Int
+           },
+           include: {
+             toko: true,
+             inventory: true,
+             cartItems: true
+           }
+         })
+
+Argument `id` is missing.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.findUnique()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:32:41
+
+  29 const getProductById = async (req, res) => {
+  30   try {
+  31     const { id } = req.params;
+→ 32     const product = await prisma.produk.findUnique({
+           where: {
+         +   id: Int
+           },
+           include: {
+             toko: true,
+             inventory: true,
+             cartItems: true
+           }
+         })
+
+Argument `id` is missing.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async getProductById (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:32:21)
+  
+  -------------------------------------
+  
+  [2024-10-09T02:48:59.377Z] Error: 
+Invalid `prisma.produk.findMany()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:125:42
+
+  122 try {
+  123   const { type } = req.params;
+  124 
+→ 125   const products = await prisma.produk.findMany({
+          where: {
+            type: "food"
+                  ~~~~~~
+          }
+        })
+
+Invalid value for argument `type`. Expected ProdukType.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.findMany()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:125:42
+
+  122 try {
+  123   const { type } = req.params;
+  124 
+→ 125   const products = await prisma.produk.findMany({
+          where: {
+            type: "food"
+                  ~~~~~~
+          }
+        })
+
+Invalid value for argument `type`. Expected ProdukType.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async getProductsByType (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:125:22)
+  
+  -------------------------------------
+  
+  [2024-10-09T03:00:21.727Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at getProductsByToko (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:187:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:26:16.828Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at updateProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:56:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:26:45.768Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:26:51.594Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:26:52.776Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:26:53.592Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:27:49.622Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-09T04:35:23.270Z] Error: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+  Stack: TypeError: Cannot destructure property 'tokoId' of 'req.user' as it is undefined.
+    at deleteProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:97:13)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:421:3)
+    at next (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\express\lib\router\index.js:280:10)
+  
+  -------------------------------------
+  
+  [2024-10-11T01:02:37.073Z] Error: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:24)
+  
+  -------------------------------------
+  
+  [2024-10-11T01:02:43.332Z] Error: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:24)
+  
+  -------------------------------------
+  
+  [2024-10-11T01:02:55.357Z] Error: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+  Stack: PrismaClientValidationError: 
+Invalid `prisma.produk.create()` invocation in
+C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:44
+
+  50 try {
+  51   const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+  52 
+→ 53   const newProduct = await prisma.produk.create({
+         data: {
+           price: undefined,
+           imgUrl: undefined,
+           type: undefined,
+           toko: {
+             connect: {
+               tokoId: undefined
+             }
+           },
+           inventory: {
+             create: {
+               quantity: undefined
+             }
+           },
+       +   title: String
+         }
+       })
+
+Argument `title` is missing.
+    at Dn (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:114:8082)
+    at Mn.handleRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7396)
+    at Mn.handleAndLogRequestError (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createProduct (C:\Users\Rendra Ramadhan\Desktop\TefaBe\tefa-be\src\user\controllers\productController.js:53:24)
+  
+  -------------------------------------
+  

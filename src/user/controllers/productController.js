@@ -1,30 +1,29 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const logErrorToFile = require('./logger');
 
-// Get all products with related toko and inventory
-const getProducts = async (req, res) => {
+  const getProducts = async (req, res) => {
   try {
     const products = await prisma.produk.findMany({
       include: {
-        toko: true,        // Include related store (Toko)
-        inventory: true,   // Include related inventory (with quantity)
-        cartItems: true,   // Include related cart items if needed
+        toko: true,
+        inventory: true,
+        cartItems: true,
       },
     });
 
     const productsWithQuantity = products.map(product => ({
       ...product,
-      inventoryQuantity: product.inventory ? product.inventory.quantity : null, // Inventory quantity if exists
-      productQuantity: product.quantity, // Product quantity from Produk model
+      inventoryQuantity: product.inventory ? product.inventory.quantity : null,
+      productQuantity: product.quantity,
     }));
 
     res.status(200).json(productsWithQuantity);
   } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to fetch products', details: error.message });
   }
 };
-
 
 // Get a product by ID with related toko and inventory
 const getProductById = async (req, res) => {
@@ -41,8 +40,8 @@ const getProductById = async (req, res) => {
     if (!product) return res.status(404).json({ error: 'Product not found' });
     res.status(200).json(product);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch product' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to fetch product', details: error.message });
   }
 };
 
@@ -51,14 +50,13 @@ const createProduct = async (req, res) => {
   try {
     const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
 
-    // Ensure you're connecting to the Toko using the correct field (id)
     const newProduct = await prisma.produk.create({
       data: {
         title,
         price,
         imgUrl,
         type,
-        toko: { connect: { id: tokoId } }, // Connect using 'id' field
+        toko: { connect: { tokoId } }, // Use the correct field
         inventory: {
           create: {
             quantity: inventoryQuantity,
@@ -69,11 +67,10 @@ const createProduct = async (req, res) => {
 
     res.status(201).json(newProduct);
   } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ error: 'Failed to create product' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to create product', details: error.message });
   }
 };
-
 
 // Update a product with possible modifications to toko and inventory
 const updateProduct = async (req, res) => {
@@ -88,7 +85,7 @@ const updateProduct = async (req, res) => {
         price,
         imgUrl,
         type,
-        toko: { connect: { id: tokoId } },
+        toko: { connect: { tokoId } },
         inventory: {
           update: {
             quantity: inventoryQuantity,
@@ -99,8 +96,8 @@ const updateProduct = async (req, res) => {
 
     res.status(200).json(updatedProduct);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update product' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to update product', details: error.message });
   }
 };
 
@@ -115,8 +112,8 @@ const deleteProduct = async (req, res) => {
 
     res.status(204).json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete product' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to delete product', details: error.message });
   }
 };
 
@@ -127,14 +124,14 @@ const getProductsByType = async (req, res) => {
 
     const products = await prisma.produk.findMany({
       where: {
-        type: type,  // No need to cast in JS
+        type: type,
       },
     });
 
     res.status(200).json(products);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch products by type' });
+    logErrorToFile(error); // Log the error
+    res.status(500).json({ error: 'Failed to fetch products by type', details: error.message });
   }
 };
 

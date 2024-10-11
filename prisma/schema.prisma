@@ -7,6 +7,30 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum ProdukType {
+  Food
+  Beverage
+}
+
+enum OrderStatus {
+  Pending
+  Processing
+  Ready
+  Completed
+  Cancelled
+}
+
+enum QRCodeStatus {
+  active
+  expired
+}
+
+enum Role {
+  USER
+  ADMIN
+  MERCHANT
+}
+
 model User {
   id               String        @id @default(uuid())
   email            String        @unique
@@ -14,14 +38,14 @@ model User {
   password         String
   role             Role       @default(USER)
   refreshToken     String? 
-  Token            RefreshToken[]
+  Token            Token[]
   orders           Order[]
-  cart             Cart?      @relation // No need for `fields` and `references` here
-  cartId           Int? // Optional: For the one-to-one relation with Cart
+  cart             Cart?   @relation
+  cartId           Int?    
   favorites        Favorite[]
 }
 
-model RefreshToken {
+model Token {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    String
@@ -52,7 +76,7 @@ model Toko {
   produk   Produk[]
   cartItems CartItem[]
   favorite Favorite[]
-  scanners Scanner[] // Relation to the Scanner model
+  scanners Scanner[] 
   orders   Order[]
 }
 
@@ -69,14 +93,6 @@ model Order {
   updatedAt DateTime    @updatedAt
   qrCodes   QRCode[] // One-to-many relation with QRCode
   history   TransactionHistory[] // One-to-many relation with TransactionHistory
-}
-
-enum OrderStatus {
-  Pending
-  Processing
-  Ready
-  Completed
-  Cancelled
 }
 
 model OrderItem {
@@ -101,7 +117,7 @@ model CartItem {
   cartId    Int
   cart      Cart     @relation(fields: [cartId], references: [id])
   produkId  Int
-  produk    Produk   @relation(fields: [produkId], references: [id])
+  produk    Produk   @relation(fields: [produkId], references: [id], onDelete: Cascade)
   quantity  Int
   tokoId    String
   toko      Toko     @relation(fields: [tokoId], references: [tokoId]) 
@@ -109,9 +125,9 @@ model CartItem {
 
 model Inventory {
   id       Int    @id @default(autoincrement())
-  produk   Produk @relation(fields: [produkId], references: [id])
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
   produkId Int    @unique
-  quantity Int    // Inventory quantity
+  quantity Int
 }
 
 model Favorite {
@@ -154,10 +170,4 @@ model Config {
   key       String   @unique 
   value     Float    
   createdAt DateTime @default(now())
-}
-
-enum Role {
-  USER
-  ADMIN
-  MERCHANT
 }
