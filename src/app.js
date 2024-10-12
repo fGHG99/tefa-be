@@ -29,7 +29,9 @@ const corsOptions = {
                "Authorization",
                 "X-Requested-With",
                 "Origin",
-                "Accept"     ]
+                "Accept"     ],
+                preflightContinue: false, // Handle preflight requests automatically
+                optionsSuccessStatus: 200 // For legacy browsers
 };
 
 app.use(cors(corsOptions));
