@@ -19,27 +19,27 @@ app.use(express.json());
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000", //backend
-    "https://mesan.curaweda.com", // pos
-    "http://mesan.curaweda.com",
+    "https://mesan.curaweda.com", //pos
   ];
-
+  
   const corsOptions = {
     origin: function (origin, callback) {
-      if (origin) {
-        if (allowedOrigins.indexOf(origin) !== -1) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      } else callback(null, true);
+      if (!origin) return callback(null, true); // Allow requests without origin (e.g., Postman)
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("Blocked by CORS:", origin); // Log the blocked origin for debugging
+        callback(new Error("Not allowed by CORS"));
+      }
     },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", // Corrected "OPTIONS"
     credentials: true,
     allowedHeaders: [
-        "Content-Type", 
-        "Authorization", 
+      "Content-Type",
+      "Authorization",
     ]
   };
+  
   //? CORS SECTION END
 
 app.use(cors(corsOptions));
