@@ -37,6 +37,6 @@
     "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
-    "prisma": "^5.19.1"
+    "prisma": "^5.20.0"
   }
 }
