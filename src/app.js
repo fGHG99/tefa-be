@@ -33,6 +33,10 @@ const allowedOrigins = [
     },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
     credentials: true,
+    allowedHeaders: [
+        "Content-Type", 
+        "Authorization", 
+    ]
   };
   //? CORS SECTION END
 
