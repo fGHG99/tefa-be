@@ -15,40 +15,29 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-
 const corsOptions = {
-    origin: 'https://mesan.curaweda.com', // Ganti dengan origin frontend Anda
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Perhatikan bahwa 'OPTIONS' seharusnya ditulis dengan benar
-    credentials: true, // Jika Anda ingin mengizinkan pengiriman cookie
+    origin: 'https://mesan.curaweda.com', 
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-
-  
+app.options('*', cors(corsOptions)); // Handle preflight requests for all routes
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 app.use('/auth', Authcontroller);
-
 app.use('/scanner', ScannerRoute);
-
 app.use('/orders', OrderRoute);
-
 app.use('/favorites', FavoriteRoute);
-
 app.use('/cart', CartRoute);
-
 app.use('/history', HistoryRoute);
-
 app.use('/product', ProductRoute);
-
 app.use('/config', ConfigRoute);
-
 app.use('/user', UserController);
-
 
 const PORT = process.env.PORT || "3001";
 app.listen(PORT, () => {
