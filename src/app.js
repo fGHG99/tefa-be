@@ -16,11 +16,11 @@ app.use(express.json());
 
 // Enable CORS
 const corsOptions = {
-    allowedOrigin: 'https://mesan.curaweda.com', 
-    allowedMethods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    origin: 'https://mesan.curaweda.com', // This should be 'origin' instead of 'allowedOrigin'
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    optionsSuccessStatus: 204,
+    optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
