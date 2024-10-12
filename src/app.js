@@ -20,6 +20,7 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000", //backend
     "https://mesan.curaweda.com", //pos
+    "https://api-mesan.curaweda.com", //api
   ];
   
   const corsOptions = {
