@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const Authcontroller = require('./user/controllers/AuthController');
 const UserController = require('./user/controllers/UserController');
 const ScannerRoute = require('./user/routes/ScannerRoute');
