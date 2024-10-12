@@ -1,14 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const authcontroller = require('./user/controllers/AuthController');
-const userController = require('./user/controllers/UserController');
-const scannerRoute = require('./user/routes/ScannerRoute');
-const favoriteRoute = require('./user/routes/FavoriteRoute');
-const cartRoute = require('./user/routes/CartRoute');
-const orderRoute = require('./user/routes/OrderRoute');
-const historyRoute = require('./user/routes/HistoryRoute');
-const productRoute = require('./user/routes/ProductRoute');
-const configRoute = require('./user/routes/FeeRoute');
+const Authcontroller = require('./user/controllers/Authcontroller');
+const UserController = require('./user/controllers/UserController');
+const ScannerRoute = require('./user/routes/ScannerRoute');
+const FavoriteRoute = require('./user/routes/FavoriteRoute');
+const CartRoute = require('./user/routes/CartRoute');
+const OrderRoute = require('./user/routes/OrderRoute');
+const HistoryRoute = require('./user/routes/HistoryRoute');
+const ProductRoute = require('./user/routes/ProductRoute');
+const ConfigRoute = require('./user/routes/FeeRoute');
 const path = require('path');
 
 const app = express();
@@ -31,23 +31,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-app.use('/auth', authcontroller);
+app.use('/auth', Authcontroller);
 
-app.use('/scanner', scannerRoute);
+app.use('/scanner', ScannerRoute);
 
-app.use('/orders', orderRoute);
+app.use('/orders', OrderRoute);
 
-app.use('/favorites', favoriteRoute);
+app.use('/favorites', FavoriteRoute);
 
-app.use('/cart', cartRoute);
+app.use('/cart', CartRoute);
 
-app.use('/history', historyRoute);
+app.use('/history', HistoryRoute);
 
-app.use('/product', productRoute);
+app.use('/product', ProductRoute);
 
-app.use('/config', configRoute);
+app.use('/config', ConfigRoute);
 
-app.use('/user', userController);
+app.use('/user', UserController);
 
 
 const PORT = process.env.PORT || "3001";
