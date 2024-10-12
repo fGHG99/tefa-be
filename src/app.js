@@ -11,31 +11,32 @@ const ProductRoute = require('./user/routes/ProductRoute');
 const ConfigRoute = require('./user/routes/FeeRoute');
 
 const app = express();
-app.use(express.json());
-
-// Enable CORS
-//? CORS SECTION START
 const corsOptions = {
     origin: [
-        "http://localhost:5173", // Local dev environment
-        "http://localhost:3000", // Local backend
-        "https://mesan.curaweda.com", // Frontend
-        "https://api-mesan.curaweda.com", // Backend
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://mesan.curaweda.com",
+        "https://api-mesan.curaweda.com",
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
     allowedHeaders: [
-         "Content-Type",
-               "Authorization",
-                "X-Requested-With",
-                "Origin",
-                 "Accept"
-             ],
-             optionsSuccessStatus: 200, // For legacy browsers
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Origin",
+        "Accept",
+    ],
+    optionsSuccessStatus: 200,
 };
 
-app.use(cors(corsOptions));
+// Apply CORS middleware
 app.options('*', cors(corsOptions)); // Allow preflight requests for all routes
+
+
+// Parse JSON requests
+app.use(express.json());
+
 
 //? CORS SECTION END
 
