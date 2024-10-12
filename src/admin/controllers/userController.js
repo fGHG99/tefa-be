@@ -1,5 +1,5 @@
 const express = require('express');
-const userModel = require('../models/userModel');
+const userModel = require('../models/UserModel');
 const { success, error } = require('../../utils/Res');
 const { protect } = require('../middlewares/Middleware')
 const router = express.Router();
