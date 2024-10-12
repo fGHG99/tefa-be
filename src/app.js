@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const Authcontroller = require('./user/controllers/AuthController');
 const UserController = require('./user/controllers/UserController');
 const ScannerRoute = require('./user/routes/ScannerRoute');
@@ -15,20 +14,29 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-const corsOptions = {
-    origin: 'https://mesan.curaweda.com', // This should be 'origin' instead of 'allowedOrigin'
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+//? CORS SECTION START
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000", //backend
+    "https://mesan.curaweda.com", // pos
+  ];
+
+  const corsOptions = {
+    origin: function (origin, callback) {
+      if (origin) {
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      } else callback(null, true);
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
     credentials: true,
-    optionsSuccessStatus: 200,
-};
+  };
+  //? CORS SECTION END
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests for all routes
-
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/auth', Authcontroller);
 app.use('/scanner', ScannerRoute);
 app.use('/orders', OrderRoute);
