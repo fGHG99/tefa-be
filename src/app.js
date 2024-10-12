@@ -16,7 +16,11 @@ app.use(express.json());
 // Enable CORS
 //? CORS SECTION START
 const corsOptions = {
-    origin: ["*"
+    origin: [
+        "http://localhost:5173", // Local dev environment
+        "http://localhost:3000", // Local backend
+        "https://mesan.curaweda.com", // Frontend
+        "https://api-mesan.curaweda.com", // Backend
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
@@ -27,7 +31,6 @@ const corsOptions = {
                 "Origin",
                  "Accept"
              ],
-             preflightContinue: true, // Ensure preflight requests are forwarded
              optionsSuccessStatus: 200, // For legacy browsers
 };
 
