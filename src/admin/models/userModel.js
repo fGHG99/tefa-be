@@ -60,34 +60,6 @@ async function deleteUser(id) {
   });
 }
 
-const logIn = async (body) => {
-  const { email, password } = body;
-  try {
-    const user = await findUserByEmail(email);
-    if (!user) throw new Error("Email tidak ditemukan!");
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new Error("Password tidak sesuai");
-
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.SECRET_KEY_AUTH); // Include user ID and role in the token
-    await prisma.refreshToken.create({ data: { token, userId: user.id } });
-    delete user.password; // Remove password from the returned user object
-    return { token, user };
-  } catch (err) {
-    throwError(err);
-  }
-};
-
-const logOut = async (token) => {
-  try {
-    const existingToken = await prisma.refreshToken.findUnique({ where: { token } });
-    if (!existingToken) throw new Error('Token tidak ada di database');
-    return await prisma.refreshToken.delete({ where: { id: existingToken.id } });
-  } catch (err) {
-    throwError(err);
-  }
-};
-
 
 module.exports = {
   createUser,

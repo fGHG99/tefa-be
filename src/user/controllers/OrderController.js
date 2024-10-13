@@ -1,71 +1,64 @@
 const { prisma } = require('../../utils/Prisma');
 const QRCode = require('qrcode');
+const { protect, authorizeRoles } = require('../middlewares/middleware'); // Import middleware
 
 // Create new orders for each Toko (merchant) involved
-const createOrder = async (userId, cartItems, deliveryMethod, address, recipientName, paymentMethod) => {
+const createOrder = async (req, res) => {
+    const { userId } = req.user; // Get userId from authenticated user
+    const { cartItems, deliveryMethod, address, recipientName, paymentMethod } = req.body;
+    
     console.log("Creating order for user:", userId, "with items:", cartItems); // Debugging log
 
     if (!deliveryMethod || !recipientName || !paymentMethod) {
-        throw new Error('Delivery method, recipient name, and payment method are required.');
+        return res.status(400).json({ error: 'Delivery method, recipient name, and payment method are required.' });
     }
 
     if (deliveryMethod === 'delivery' && !address) {
-        throw new Error('Address is required for delivery.');
+        return res.status(400).json({ error: 'Address is required for delivery.' });
     }
 
     try {
         // Fetch the products and their prices
-        const productIds = cartItems.map(item => item.produkId); // Ambil produkId dari cartItems
+        const productIds = cartItems.map(item => item.produkId);
         const products = await prisma.produk.findMany({
             where: { id: { in: productIds } },
         });
 
         // Check if products are found
         if (products.length === 0) {
-            console.error("No products found for the given IDs:", productIds);
-            throw new Error('No products found for the provided item IDs');
+            return res.status(404).json({ error: 'No products found for the provided item IDs' });
         }
 
         // Group items by Toko (merchant)
         const itemsByToko = cartItems.reduce((acc, item) => {
             const product = products.find(p => p.id === item.produkId);
-            const tokoId = product?.tokoId; // Use optional chaining to prevent errors
+            const tokoId = product?.tokoId; 
 
-            if (!tokoId) {
-                console.error("Product does not have a tokoId:", product);
-                return acc; // Skip if tokoId is not found
-            }
-
+            if (!tokoId) return acc;
             if (!acc[tokoId]) acc[tokoId] = [];
             acc[tokoId].push({ ...item, price: product.price });
             return acc;
         }, {});
 
         const orders = [];
-
-        // Fetch the admin fee from the Config table
         const adminFeeConfig = await prisma.config.findUnique({
             where: { key: 'adminFee' },
         });
-
-        const adminFee = adminFeeConfig ? parseFloat(adminFeeConfig.value) : 0; // Pastikan adminFee di parsing ke float
+        const adminFee = adminFeeConfig ? parseFloat(adminFeeConfig.value) : 0;
 
         // Create separate orders for each Toko
         for (const tokoId in itemsByToko) {
             const tokoItems = itemsByToko[tokoId];
-
-            // Calculate total amount for each order
             let totalAmount = tokoItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             totalAmount += adminFee;
 
-            // Create the order
             const order = await prisma.order.create({
                 data: {
                     userId: userId,
                     tokoId: tokoId,
                     total: totalAmount,
-                    status: 'Pending', // Order starts with 'Pending' status
-                    deliveryMethod: deliveryMethod, // pickup or delivery
+                    status: 'Pending',
+                    deliveryMethod: deliveryMethod,
                     address: deliveryMethod === 'delivery' ? address : null,
                     recipientName: recipientName,
                     paymentMethod: paymentMethod,
@@ -81,24 +74,22 @@ const createOrder = async (userId, cartItems, deliveryMethod, address, recipient
 
             orders.push(order);
 
-            // Notifikasi bahwa pesanan siap (status 'Ready')
             sendNotification(order.userId, `Pesanan Anda dengan ID: ${order.id} sudah siap!`);
             sendNotificationToToko(order.tokoId, `Pesanan dengan ID: ${order.id} sudah siap di toko Anda!`);
         }
 
-        return orders; // Kembalikan orders yang telah dibuat
+        return res.status(201).json(orders);
     } catch (error) {
         console.error('Error creating order:', error);
-        throw new Error('Failed to create orders');
+        return res.status(500).json({ error: 'Failed to create orders' });
     }
 };
 
 // Generate QR code based on order details
 async function generateQRCode(orderId) {
     try {
-        // Fetch the order and related data
         const order = await prisma.order.findUnique({
-            where: { id: orderId }, // Change 'id' to 'orderId'
+            where: { id: orderId },
             include: {
                 user: true,
                 items: true,
@@ -109,7 +100,6 @@ async function generateQRCode(orderId) {
             throw new Error(`Order with ID ${orderId} not found`);
         }
 
-        // Data to be included in the QR code
         const qrData = {
             orderId: order.id,
             userId: order.userId,
@@ -122,7 +112,6 @@ async function generateQRCode(orderId) {
             })),
         };
 
-        // Generate the QR code as a data URL
         const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(qrData));
         return qrCodeUrl;
     } catch (error) {
@@ -131,63 +120,52 @@ async function generateQRCode(orderId) {
     }
 }
 
-// Update the order status and handle logic based on status
+// Update the order status
 async function updateOrderStatus(req, res) {
     const { orderId, status } = req.body;
 
     try {
-        // Ensure the status is valid
         if (!["Pending", "Processing", "Ready", "Completed", "Cancelled"].includes(status)) {
             return res.status(400).json({ error: 'Invalid status value' });
         }
 
-        // Retrieve the current order
-        const order = await prisma.order.findUnique({
-            where: { id: orderId },
-        });
+        const order = await prisma.order.findUnique({ where: { id: orderId } });
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Check the logic for status transitions
         if (order.status === 'Pending' && status === 'Cancelled') {
-            // Merchant cancels the order
             await prisma.order.update({
                 where: { id: orderId },
                 data: { status: 'Cancelled' },
             });
         } else if (order.status === 'Pending' && status === 'Processing') {
-            // Merchant accepts the order and moves it to processing
             await prisma.order.update({
                 where: { id: orderId },
                 data: { status: 'Processing' },
             });
         } else if (order.status === 'Processing' && status === 'Ready') {
-            // Merchant marks order as ready
             await prisma.order.update({
                 where: { id: orderId },
                 data: { status: 'Ready' },
             });
 
-            // Generate QR code and store it
             const qrCodeUrl = await generateQRCode(orderId);
             await prisma.qRCode.create({
                 data: {
                     orderId,
                     qrCodeUrl,
-                    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+                    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
                     status: 'active',
                 },
             });
         } else if (order.status === 'Ready' && status === 'Completed') {
-            // User scans QR code within time limit, mark order as completed
             await prisma.order.update({
                 where: { id: orderId },
                 data: { status: 'Completed' },
             });
 
-            // Expire the QR code
             await prisma.qRCode.update({
                 where: { orderId: orderId },
                 data: { status: 'expired' },
@@ -196,41 +174,38 @@ async function updateOrderStatus(req, res) {
             return res.status(400).json({ error: 'Invalid status transition' });
         }
 
-        res.status(200).json({ message: `Order status updated to ${status}` });
+        return res.status(200).json({ message: `Order status updated to ${status}` });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to update order status' });
+        return res.status(500).json({ error: 'Failed to update order status' });
     }
 }
 
-// Complete the order and expire QR code
+// Complete the order
 async function completeOrder(req, res) {
     const { orderId } = req.body;
 
     try {
-        // Update order status to 'Completed'
         const order = await prisma.order.update({
             where: { id: orderId },
             data: { status: 'Completed' },
         });
 
-        // Mark the QR code as expired
         await prisma.qRCode.update({
             where: { orderId: orderId },
             data: { status: 'expired' },
         });
 
-        // Notifikasi bahwa pesanan sudah selesai
         sendNotification(order.userId, `Pesanan Anda dengan ID: ${orderId} telah selesai!`);
 
-        res.status(200).json(order);
+        return res.status(200).json(order);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to complete order' });
+        return res.status(500).json({ error: 'Failed to complete order' });
     }
 }
 
 module.exports = {
-    createOrder,
-    updateOrderStatus,
-    completeOrder,
+    createOrder: [protect, authorizeRoles('USER'), createOrder], // Apply middleware here
+    updateOrderStatus: [protect, authorizeRoles('USER'), updateOrderStatus], // Apply middleware here
+    completeOrder: [protect, authorizeRoles('USER'), completeOrder], // Apply middleware here
 };

@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { protect, authorizeRoles } = require('../middlewares/middleware'); // Import middleware
 
 // Get all products with related toko and inventory
 const getProducts = async (req, res) => {
@@ -129,10 +130,10 @@ const getProductsByType = async (req, res) => {
 };
 
 module.exports = {
-  getProducts,
-  getProductById,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  getProductsByType,
+  getProducts: [protect, authorizeRoles('MERCHANT'), getProducts], // Protect route and apply role restriction
+  getProductById: [protect, authorizeRoles('MERCHANT'), getProductById], // Protect route and apply role restriction
+  createProduct: [protect, authorizeRoles('MERCHANT'), createProduct], // Only MERCHANT can create
+  updateProduct: [protect, authorizeRoles('MERCHANT'), updateProduct], // Only MERCHANT can update
+  deleteProduct: [protect, authorizeRoles('MERCHANT'), deleteProduct], // Only MERCHANT can delete
+  getProductsByType: [protect, authorizeRoles('MERCHANT'), getProductsByType], // Protect and restrict access
 };

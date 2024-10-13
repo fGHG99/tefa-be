@@ -27,8 +27,9 @@ enum QRCodeStatus {
 
 enum Role {
   USER
+  MERCHANT
   ADMIN
-  MERCHANT  
+  SUPER_ADMIN
 }
 
 model User {
