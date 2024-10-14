@@ -1,4 +1,4 @@
-const { prisma } = require('../../utils/Prisma');
+const { prisma } = require('../../utils/aPrisma');
 const QRCode = require('qrcode');
 const { protect, authorizeRoles } = require('../middlewares/aMiddleware'); // Import middleware
 

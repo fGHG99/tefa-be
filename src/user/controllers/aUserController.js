@@ -1,7 +1,7 @@
 const express = require('express');
 const userModel = require('../models/aUserModel');
 const { protect } = require('../middlewares/aMiddleware');
-const { success, error } = require('../../utils/Res');
+const { success, error } = require('../../utils/aRes');
 const router = express.Router();
 
 router.get("/profile", protect, async (req, res) => {

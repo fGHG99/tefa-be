@@ -1,4 +1,4 @@
-const { prisma } = require('../../utils/Prisma');
+const { prisma } = require('../../utils/aPrisma');
 
 // Add a favorite
 const addFavorite = async (id, tokoId) => {
