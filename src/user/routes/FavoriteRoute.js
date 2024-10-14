@@ -1,5 +1,5 @@
 const express = require('express');
-const { addFavorite, getFavorites, removeFavorite, isFavorited } = require('../controllers/FavoriteController');
+const { addFavorite, getFavorites, removeFavorite, isFavorited } = require('../controllers/aFavoriteController');
 const router = express.Router();
 
 // Route to add a favorite
