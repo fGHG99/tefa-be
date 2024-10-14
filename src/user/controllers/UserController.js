@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/profile", protect, async (req, res) => {
     try {
-      const data = await userModel.isExist(req.user.id); // Similar to your provided endpoint
+      const data = await userModel.isExist(req.user.id);
       return success(res, "Profile fetched successfully!", data);
     } catch (err) {
       return error(res, err.message);

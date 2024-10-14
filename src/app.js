@@ -8,7 +8,7 @@ const CartRoute = require('./user/routes/CartRoute');
 const OrderRoute = require('./user/routes/OrderRoute');
 const HistoryRoute = require('./user/routes/HistoryRoute');
 const ProductRoute = require('./user/routes/ProductRoute');
-const ConfigRoute = require('./user/routes/FeeRoute');
+const AdminRoutes = require('./admin/routes/AdminRoute');
 
 const app = express();
 const corsOptions = {
@@ -48,9 +48,8 @@ app.use('/favorites', FavoriteRoute);
 app.use('/cart', CartRoute);
 app.use('/history', HistoryRoute);
 app.use('/product', ProductRoute);
-app.use('/config', ConfigRoute);
 app.use('/user', UserController);
-
+app.use('/admin', AdminRoutes);
 // Server
 const PORT = process.env.PORT || "3001";
 app.listen(PORT, () => {

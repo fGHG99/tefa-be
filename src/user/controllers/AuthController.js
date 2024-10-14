@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { prisma } = require('../../utils/Prisma');
 const router = express.Router();
-const { success, error } = require('../../utils/Res');
 
 const generateAuthToken = (user) => {
     return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' });

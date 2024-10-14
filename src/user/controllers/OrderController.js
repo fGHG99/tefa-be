@@ -1,6 +1,5 @@
 const { prisma } = require('../../utils/Prisma');
 const QRCode = require('qrcode');
-const { protect, authorizeRoles } = require('../middlewares/Middleware'); // Import middleware
 
 // Create new orders for each Toko (merchant) involved
 const createOrder = async (req, res) => {
@@ -205,7 +204,7 @@ async function completeOrder(req, res) {
 }
 
 module.exports = {
-    createOrder: [protect, authorizeRoles('USER'), createOrder], // Apply middleware here
-    updateOrderStatus: [protect, authorizeRoles('USER'), updateOrderStatus], // Apply middleware here
-    completeOrder: [protect, authorizeRoles('USER'), completeOrder], // Apply middleware here
+    createOrder,
+    updateOrderStatus,
+    completeOrder,
 };
