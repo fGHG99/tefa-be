@@ -4,7 +4,7 @@ CREATE TABLE `User` (
     `email` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NULL,
     `password` VARCHAR(191) NOT NULL,
-    `role` ENUM('USER', 'ADMIN', 'MERCHANT') NOT NULL DEFAULT 'USER',
+    `role` ENUM('USER', 'MERCHANT', 'ADMIN', 'SUPER_ADMIN') NOT NULL DEFAULT 'USER',
     `refreshToken` VARCHAR(191) NULL,
     `cartId` INTEGER NULL,
 
