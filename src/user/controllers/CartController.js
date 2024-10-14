@@ -1,5 +1,5 @@
-const { prisma } = require('../../utils/aPrisma');
-const { createOrder } = require('./aOrderController');
+const { prisma } = require('../../utils/Prisma');
+const { createOrder } = require('./OrderController');
 
 const addItemToCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;

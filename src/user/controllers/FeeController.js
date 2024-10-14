@@ -1,4 +1,4 @@
-const { prisma } = require('../../utils/aPrisma');
+const { prisma } = require('../../utils/Prisma');
 
 const getAdminFee = async (req, res) => {
   try {

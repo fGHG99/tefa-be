@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { protect, authorizeRoles } = require('../middlewares/aMiddleware'); // Import middleware
+const { protect, authorizeRoles } = require('../middlewares/Middleware'); // Import middleware
 
 // Get all products with related toko and inventory
 const getProducts = async (req, res) => {
