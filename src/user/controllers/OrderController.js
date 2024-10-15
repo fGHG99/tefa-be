@@ -84,7 +84,6 @@ const createOrder = async (req, res) => {
     }
 };
 
-// Generate QR code based on order details
 async function generateQRCode(orderId) {
     try {
         const order = await prisma.order.findUnique({
@@ -119,7 +118,6 @@ async function generateQRCode(orderId) {
     }
 }
 
-// Update the order status
 async function updateOrderStatus(req, res) {
     const { orderId, status } = req.body;
 
@@ -180,7 +178,6 @@ async function updateOrderStatus(req, res) {
     }
 }
 
-// Complete the order
 async function completeOrder(req, res) {
     const { orderId } = req.body;
 
