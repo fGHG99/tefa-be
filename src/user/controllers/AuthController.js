@@ -29,16 +29,20 @@ const createRefreshToken = (user) => {
 const register = async (req, res) => {
     try {
       const { email, password, name } = req.body;
+  
+      // Check if the email already exists
       const emailAlreadyExist = await prisma.user.findFirst({ where: { email } });
       if (emailAlreadyExist) {
         return res.status(400).json({ message: 'Email already exists' });
       }
   
+      // Hash the password and create the new user
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await prisma.user.create({
         data: { email, password: hashedPassword, name, role: "USER" },
       });
   
+      // Generate tokens
       const accessToken = createAccessToken(newUser);
       const refreshToken = createRefreshToken(newUser);
       const expiresAt = getRefreshTokenExpiryDate();
@@ -53,20 +57,38 @@ const register = async (req, res) => {
           },
         });
       } catch (tokenError) {
-        console.error("Error creating token in the database:", tokenError);
+        // Log token-related errors
+        console.error("Error creating token in the database:", {
+          message: tokenError.message,
+          stack: tokenError.stack,
+          ...tokenError
+        });
         return res.status(500).json({ message: "Failed to save refresh token" });
       }
   
+      // Return success response
       res.status(201).json({
         message: "User registered successfully",
         accessToken,
         refreshToken,
       });
+  
     } catch (err) {
-      console.error("Error during registration:", err);
-      throwError(err, res);
+      // Log the real error details during registration
+      console.error("Error during registration:", {
+        message: err.message,
+        stack: err.stack,
+        ...err  // This will log any other useful information attached to the error object
+      });
+  
+      // Return a generic error response
+      res.status(500).json({
+        message: 'An error occurred during registration',
+        error: err.message, // Optional, include error details in response for better debugging
+      });
     }
   };
+  
 
 // Login
 const login = async (req, res) => {
