@@ -9,6 +9,7 @@ const OrderRoute = require('./user/routes/OrderRoute');
 const HistoryRoute = require('./user/routes/HistoryRoute');
 const ProductRoute = require('./user/routes/ProductRoute');
 const AdminRoutes = require('./admin/routes/AdminRoute');
+const config = require('./config'); // Import the config
 
 const app = express();
 const corsOptions = {
@@ -34,7 +35,6 @@ app.options('*', cors(corsOptions));
 // Parse JSON requests
 app.use(express.json());
 
-
 //? CORS SECTION END
 
 // Routes
@@ -47,8 +47,8 @@ app.use('/history', HistoryRoute);
 app.use('/product', ProductRoute);
 app.use('/user', UserController);
 app.use('/admin', AdminRoutes);
+
 // Server
-const PORT = process.env.PORT || "3001";
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(config.PORT, () => {
+    console.log(`Server running on port ${config.PORT}`);
 });
