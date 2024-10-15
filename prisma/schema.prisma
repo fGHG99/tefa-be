@@ -86,7 +86,7 @@ model Toko {
   tokoId   String       @id @default(uuid())
   name     String       @unique
   desc     String?
-  TokoType TokoTypes?
+  tokoType TokoTypes?
   produk   Produk[]
   cartItems CartItem[]
   favorite Favorite[]
@@ -101,7 +101,7 @@ model Order {
   status    OrderStatus          @default(Pending)
   total     Float
   items     OrderItem[]
-  toko      Toko                 @relation(fields: [tokoId], references: [tokoId])
+  Toko      Toko                 @relation(fields: [tokoId], references: [tokoId])
   tokoId    String
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt

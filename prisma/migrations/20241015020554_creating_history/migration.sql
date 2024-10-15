@@ -9,7 +9,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `toko` ADD COLUMN `TokoType` ENUM('Kantin', 'Hydro', 'Koperasi') NULL;
+ALTER TABLE `Toko` ADD COLUMN `TokoType` ENUM('Kantin', 'Hydro', 'Koperasi') NULL;
 
 -- AlterTable
 ALTER TABLE `transactionhistory` ADD COLUMN `orderItemId` INTEGER NULL,
