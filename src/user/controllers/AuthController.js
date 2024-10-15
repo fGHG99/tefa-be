@@ -43,7 +43,7 @@ const register = async (req, res) => {
       const refreshToken = createRefreshToken(newUser);
       const expiresAt = getRefreshTokenExpiryDate();
   
-      // Save refresh token and expiration date in the database
+      // Save refresh token and expiration date in the Token table
       try {
         await prisma.token.create({
           data: {
@@ -51,6 +51,12 @@ const register = async (req, res) => {
             userId: newUser.id,
             expiresAt: expiresAt, // Set the calculated expiration date
           },
+        });
+  
+        // Update the user's refreshToken field
+        await prisma.user.update({
+          where: { id: newUser.id },
+          data: { refreshToken: refreshToken },
         });
       } catch (tokenError) {
         console.error("Error creating token in the database:", tokenError);
@@ -67,28 +73,42 @@ const register = async (req, res) => {
       throwError(err, res);
     }
   };
+  
 
 // Login
 const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await prisma.user.findFirst({ where: { email } });
-    if (!user) return res.status(404).json({ message: "Email not found!" });
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: "Incorrect password" });
-
-    const accessToken = createAccessToken(user);
-    const refreshToken = createRefreshToken(user);
-    const expiresAt = getRefreshTokenExpiryDate();
-
-    await prisma.token.create({ data: { token: refreshToken, userId: user.id, expiresAt: expiresAt,  } });
-
-    res.status(200).json({ message: "Login successful", accessToken, refreshToken });
-  } catch (err) {
-    throwError(err, res);
-  }
-};
+    const { email, password } = req.body;
+    try {
+      const user = await prisma.user.findFirst({ where: { email } });
+      if (!user) return res.status(404).json({ message: "Email not found!" });
+  
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) return res.status(401).json({ message: "Incorrect password" });
+  
+      const accessToken = createAccessToken(user);
+      const refreshToken = createRefreshToken(user);
+      const expiresAt = getRefreshTokenExpiryDate();
+  
+      await prisma.token.create({
+        data: {
+          token: refreshToken,
+          userId: user.id,
+          expiresAt: expiresAt,
+        },
+      });
+  
+      // Update the user's refreshToken field
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: refreshToken },
+      });
+  
+      res.status(200).json({ message: "Login successful", accessToken, refreshToken });
+    } catch (err) {
+      throwError(err, res);
+    }
+  };
+  
 
 // Logout (Protected)
 const logout = async (req, res) => {
