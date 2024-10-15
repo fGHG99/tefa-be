@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const Authcontroller = require('./user/controllers/AuthController');
+const Auth = require('./user/routes/AuthRoute');
 const UserController = require('./user/controllers/UserController');
 const ScannerRoute = require('./user/routes/ScannerRoute');
 const FavoriteRoute = require('./user/routes/FavoriteRoute');
@@ -40,7 +40,7 @@ app.use(express.json());
 //? CORS SECTION END
 
 // Routes
-app.use('/auth', Authcontroller);
+app.use('/auth', Auth);
 app.use('/scanner', ScannerRoute);
 app.use('/orders', OrderRoute);
 app.use('/favorites', FavoriteRoute);

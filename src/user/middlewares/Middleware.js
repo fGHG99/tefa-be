@@ -1,42 +1,32 @@
 const jwt = require('jsonwebtoken');
-const { prisma } = require('../../utils/Prisma');
+const { error } = require('../../utils/Helper');
 
 // Middleware to verify JWT and authenticate user
 const protect = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ error: 'Access denied, no token provided' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Check role is 'USER' and validate email domain if necessary
-        if (user.role !== 'USER') {
-            return res.status(200).json({ error: 'Access denied' });
-        }
-
-        // Attach user to request object for further use
-        req.user = user;
-        next();
+      const token = req.headers['authorization'];
+  
+      if (!token) {
+        return error(res, 'Token tidak tersedia!', 401);
+      }
+  
+      // Verify token synchronously
+      const decoded = jwt.verify(token, process.env.SECRET_KEY_AUTH);
+      req.user = decoded;
+      next(); // Continue to the next middleware or route handler
     } catch (err) {
-        return res.status(400).json({ error: 'Invalid token' });
+      return error(res, 'Token tidak valid!', 401);
     }
-};
+  };
 
 // Middleware for role-based authorization (generic for multiple roles)
 const authorizeRoles = (...allowedRoles) => {
     return (req, res, next) => {
-        if (!allowedRoles.includes(req.user.role)) {
-            return res.status(403).json({ error: `Access denied, only ${allowedRoles.join(', ')} are allowed` });
-        }
-        next();
+      if (!allowedRoles.includes(req.user.role)) {
+        return res.status(403).json({ error: `Access denied, only ${allowedRoles.join(', ')} are allowed` });
+      }
+      next();
     };
-};
+  };
 
 module.exports = { protect, authorizeRoles };
