@@ -15,7 +15,7 @@ ALTER TABLE `TransactionHistory` DROP FOREIGN KEY `TransactionHistory_orderItemI
 ALTER TABLE `TransactionHistory` DROP FOREIGN KEY `TransactionHistory_userId_fkey`;
 
 -- AlterTable
-ALTER TABLE `toko` DROP COLUMN `TokoType`,
+ALTER TABLE `Toko` DROP COLUMN `TokoType`,
     ADD COLUMN `tokoType` ENUM('Kantin', 'Hydro', 'Koperasi') NULL;
 
 -- DropTable
