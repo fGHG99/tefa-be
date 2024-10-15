@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect, authorizeRoles } = require('../middlewares/Middleware');
 const profile = require('../controllers/UserController'); 
-const adminController = require('../controllers/adminController');
+const adminController = require('../controllers/AdminController');
 const { getAdminFee, updateAdminFee, setAdminFee } = require('../../admin/controllers/FeeController');
 
 // Route to get Admin profile
