@@ -26,47 +26,52 @@ const createRefreshToken = (user) => {
 };
 
 // Register
-const register = async (req, res) => {
+router.post('/register', async (req, res) => {
+    const { email, name, password, role = 'USER' } = req.body;
+
     try {
-      const { email, password, name } = req.body;
-      const emailAlreadyExist = await prisma.user.findFirst({ where: { email } });
-      if (emailAlreadyExist) {
-        return res.status(400).json({ message: 'Email already exists' });
-      }
-  
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await prisma.user.create({
-        data: { email, password: hashedPassword, name, role: "USER" },
-      });
-  
-      const accessToken = createAccessToken(newUser);
-      const refreshToken = createRefreshToken(newUser);
-      const expiresAt = getRefreshTokenExpiryDate();
-  
-      // Save refresh token and expiration date in the database
-      try {
-        await prisma.token.create({
-          data: {
-            token: refreshToken,
-            userId: newUser.id,
-            expiresAt: expiresAt, // Set the calculated expiration date
-          },
+        if (role === 'USER' && !email.endsWith('.siswa@smkn4bdg.sch.id')) {
+            return res.status(400).json({ error: 'User must use a valid school email!' });
+        }
+
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 8);
+        const user = await prisma.user.create({
+            data: {
+                email,
+                name,
+                password: hashedPassword,
+                role,
+            },
         });
-      } catch (tokenError) {
-        console.error("Error creating token in the database:", tokenError);
-        return res.status(500).json({ message: "Failed to save refresh token" });
-      }
-  
-      res.status(201).json({
-        message: "User registered successfully",
-        accessToken,
-        refreshToken,
-      });
+
+        const token = generateAuthToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        // Store the refresh token in the database
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        });
+
+        res.status(201).json({ user, token, refreshToken });
     } catch (err) {
-      console.error("Error during registration:", err);
-      throwError(err, res);
+        // Log the error details
+        console.error('Registration error:', {
+            message: err.message,
+            stack: err.stack,
+            details: err, // This logs the entire error object
+        });
+
+        res.status(500).json({ error: 'Failed to register user' });
     }
-  };
+});
+
 
 // Login
 const login = async (req, res) => {
