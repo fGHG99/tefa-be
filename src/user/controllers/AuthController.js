@@ -45,6 +45,7 @@ const register = async (req, res) => {
 
 
 // Login
+// Login
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -56,27 +57,32 @@ const login = async (req, res) => {
 
     const Token = accessToken(user);
 
-    await prisma.token.create({ data: { token: Token, userId: user.id, expiresAt: expireAt   } });
+    await prisma.$transaction([
+      prisma.token.create({ data: { token: Token, userId: user.id, expiresAt: expireAt } }),
+      prisma.user.update({ where: { id: user.id }, data: { refreshToken: Token } })
+    ]);
 
-    res.status(200).json({ data: {
-      UserId : user.id,
-      name: user.name,
-    }, token: Token 
-  });
+    res.status(200).json({
+      data: {
+        UserId: user.id,
+        name: user.name,
+      },
+      token: Token,
+    });
   } catch (err) {
     throwError(err, res);
   }
 };
 
+
 // Logout (Protected)
 const logout = async (req, res) => {
-  const { refreshToken } = req.body;
+  const { token } = req.body;
   try {
     // Check if refresh token exists in the database
-    const tokenRecord = await prisma.token.findFirst({ where: { token: refreshToken } });
+    const tokenRecord = await prisma.token.findFirst({ where: { token: token } });
     if (!tokenRecord) return res.status(404).json({ message: " token not found in the database" });
 
-    // Delete the refresh token from the database
     await prisma.token.delete({ where: { id: tokenRecord.id } });
 
     res.status(200).json({ message: "Logout successful" });
