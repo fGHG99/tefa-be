@@ -3,70 +3,46 @@ const { prisma } = require("../../utils/Prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const getRefreshTokenExpiryDate = () => {
-    const now = new Date();
-    now.setDate(now.getDate() + 7); // Adds 7 days to current date
-    return now;
-  };
+const secret = process.env.JWT_SECRET; 
 
-const createAccessToken = (user) => {
+const expireIn = 60 * 60 * 1
+const expireAt = new Date(Date.now() + expireIn * 1000)
+
+const accessToken = (user) => {
   return jwt.sign(
     { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "15m" }
+    secret,
+    { expiresIn: expireIn }
   );
 };
 
-const createRefreshToken = (user) => {
-  return jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
-  );
-};
-
-// Registers
 const register = async (req, res) => {
     try {
-      const { email, password, name } = req.body;
+      const { email, name, password } = req.body;
       const emailAlreadyExist = await prisma.user.findFirst({ where: { email } });
       if (emailAlreadyExist) {
         return res.status(400).json({ message: 'Email already exists' });
       }
   
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await prisma.user.create({
-        data: { email, password: hashedPassword, name, role: "USER" },
-      });
-  
-      const accessToken = createAccessToken(newUser);
-      const refreshToken = createRefreshToken(newUser);
-      const expiresAt = getRefreshTokenExpiryDate();
-  
-      // Save refresh token and expiration date in the database
       try {
-        await prisma.token.create({
-          data: {
-            token: refreshToken,
-            userId: newUser.id,
-            expiresAt: expiresAt, // Set the calculated expiration date
-          },
+        const newUser = await prisma.user.create({
+          data: { email, password: hashedPassword, name, role: "USER" },
         });
-      } catch (tokenError) {
-        console.error("Error creating token in the database:", tokenError);
-        return res.status(500).json({ message: "Failed to save refresh token" });
-      }
   
-      res.status(201).json({
-        message: "User registered successfully",
-        accessToken,
-        refreshToken,
-      });
+        return res.status(201).json({
+          message: "User registered successfully",
+        });
+      } catch (createError) {
+        console.error("Error during user creation:", createError);
+        return res.status(500).json({ message: "Failed to create user" });
+      }
     } catch (err) {
       console.error("Error during registration:", err);
-      throwError(err, res);
+      return res.status(500).json({ message: "Internal server error" });
     }
   };
+
 
 // Login
 const login = async (req, res) => {
@@ -78,13 +54,15 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Incorrect password" });
 
-    const accessToken = createAccessToken(user);
-    const refreshToken = createRefreshToken(user);
-    const expiresAt = getRefreshTokenExpiryDate();
+    const Token = accessToken(user);
 
-    await prisma.token.create({ data: { token: refreshToken, userId: user.id, expiresAt: expiresAt,  } });
+    await prisma.token.create({ data: { token: Token, userId: user.id, expiresAt: expireAt   } });
 
-    res.status(200).json({ message: "Login successful", accessToken, refreshToken });
+    res.status(200).json({ data: {
+      UserId : user.id,
+      name: user.name,
+    }, token: Token 
+  });
   } catch (err) {
     throwError(err, res);
   }
