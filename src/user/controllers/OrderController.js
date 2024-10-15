@@ -3,7 +3,7 @@ const QRCode = require('qrcode');
 
 // Create new orders for each Toko (merchant) involved
 const createOrder = async (req, res) => {
-    const { userId } = req.user; // Get userId from authenticated user
+    const { id } = req.user; // Get userId from authenticated user
     const { cartItems, deliveryMethod, address, recipientName, paymentMethod } = req.body;
     
     console.log("Creating order for user:", userId, "with items:", cartItems); // Debugging log
@@ -53,7 +53,7 @@ const createOrder = async (req, res) => {
 
             const order = await prisma.order.create({
                 data: {
-                    userId: userId,
+                    userId: id,
                     tokoId: tokoId,
                     total: totalAmount,
                     status: 'Pending',

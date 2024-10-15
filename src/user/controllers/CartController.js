@@ -134,10 +134,10 @@ const getCart = async (req, res) => {
 };
 
 const checkout = async (req, res) => {
-  const { userId, deliveryMethod, address, recipientName, paymentMethod } = req.body || {};
+  const { userId, deliveryMethod, address, recipientName } = req.body || {};
 
-  if (!req.body || !userId || !deliveryMethod || !recipientName || !paymentMethod) {
-    return res.status(400).json({ error: 'Missing required fields: userId, deliveryMethod, recipientName, paymentMethod' });
+  if (!req.body || !userId || !deliveryMethod || !recipientName ) {
+    return res.status(400).json({ error: 'Missing required fields: userId, deliveryMethod, recipientName' });
   }
 
   try {
@@ -154,7 +154,7 @@ const checkout = async (req, res) => {
       return res.status(400).json({ error: 'Address is required for delivery' });
     }
 
-    const orders = await createOrder(userId, cart.items, deliveryMethod, address, recipientName, paymentMethod);
+    const orders = await createOrder(userId, cart.items, deliveryMethod, address, recipientName);
     return res.status(201).json(orders);
   } catch (error) {
     console.error('Error during checkout:', error);

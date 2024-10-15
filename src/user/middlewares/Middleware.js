@@ -17,8 +17,8 @@ const protect = async (req, res, next) => {
         }
 
         // Check role is 'USER' and validate email domain if necessary
-        if (user.role === 'USER') {
-            return res.status(403).json({ error: 'Access denied' });
+        if (user.role !== 'USER') {
+            return res.status(200).json({ error: 'Access denied' });
         }
 
         // Attach user to request object for further use
