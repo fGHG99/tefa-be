@@ -1,18 +1,16 @@
-const express = require('express');
-const router = express.Router();
+const { router } = require('../../utils/Router');
 const {
-  getAllTransactionHistories,
-  getTransactionHistoryById,  // Import the new function
-  createTransactionHistory
-} = require('../controllers/HistoryController');
+  getAllHistory,
+  getHistoryById,
+  getHistoryByTokoId,
+  getHistoryByMonth,
+} = require('../controllers/historyController');
+const { protect } = require('../middlewares/Middleware');
 
-// GET semua transaction history
-router.get('/', getAllTransactionHistories);
-
-// GET specific transaction history by ID
-router.get('/:id', getTransactionHistoryById); // New route to fetch specific history
-
-// POST untuk membuat transaction history setelah order completed
-router.post('/create/:orderId', createTransactionHistory);
+// Routes for transaction history
+router.get('/history', protect, getAllHistory);                         // Get all history
+router.get('/history/:id', protect, getHistoryById);                    // Get history by ID
+router.get('/history/toko/:tokoId', protect,  getHistoryByTokoId);       // Get history by Toko ID
+router.get('/history/month/:year/:month', protect, getHistoryByMonth);  // Get history by month
 
 module.exports = router;
