@@ -9,10 +9,10 @@
 
 */
 -- AlterTable
-ALTER TABLE `toko` ADD COLUMN `TokoType` ENUM('Kantin', 'Hydro', 'Koperasi') NULL;
+ALTER TABLE `Toko` ADD COLUMN `tokoType` ENUM('Kantin', 'Hydro', 'Koperasi') NULL;
 
 -- AlterTable
-ALTER TABLE `transactionhistory` ADD COLUMN `orderItemId` INTEGER NULL,
+ALTER TABLE `TransactionHistory` ADD COLUMN `orderItemId` INTEGER NULL,
     ADD COLUMN `price` DOUBLE NOT NULL,
     ADD COLUMN `produkTitle` VARCHAR(191) NOT NULL,
     ADD COLUMN `quantity` INTEGER NOT NULL,
