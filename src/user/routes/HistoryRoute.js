@@ -4,7 +4,7 @@ const {
   getHistoryById,
   getHistoryByTokoId,
   getHistoryByMonth,
-} = require('../controllers/historyController');
+} = require('../controllers/HistoryController');
 const { protect } = require('../middlewares/Middleware');
 
 // Routes for transaction history
