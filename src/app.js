@@ -21,8 +21,6 @@ const corsOptions = {
     allowedHeaders: [
         "Content-Type",
         "Authorization",
-        "Origin",
-        "Accept",
     ],
     optionsSuccessStatus: 200,
 };
