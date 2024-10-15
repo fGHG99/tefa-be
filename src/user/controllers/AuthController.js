@@ -25,7 +25,7 @@ const createRefreshToken = (user) => {
   );
 };
 
-// Register
+// Registers
 const register = async (req, res) => {
     try {
       const { email, password, name } = req.body;
