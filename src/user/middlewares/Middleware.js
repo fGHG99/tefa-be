@@ -4,14 +4,13 @@ const { error } = require('../../utils/Helper');
 // Middleware to verify JWT and authenticate user
 const protect = async (req, res, next) => {
     try {
-      const token = req.headers['authorization'];
+      const token = req.cookies.token;
   
       if (!token) {
-        return error(res, 'Token tidak tersedia!', 401);
+        return error(res, 'Token not available', 401);
       }
-  
-      // Verify token synchronously
-      const decoded = jwt.verify(token, process.env.SECRET_KEY_AUTH);
+      
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
       next(); // Continue to the next middleware or route handler
     } catch (err) {

@@ -59,6 +59,14 @@ const login = async (req, res) => {
       prisma.user.update({ where: { id: user.id }, data: { refreshToken: Token } })
     ]);
 
+    res.cookie('token', Token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Ensure secure cookie in production
+      sameSite: 'strict',
+      maxAge: expireIn * 1000,
+    });
+
+
     res.status(200).json({
       data: {
         UserId: user.id,
@@ -73,19 +81,13 @@ const login = async (req, res) => {
 
 
 // Logout (Protected)
-const logout = async (req, res) => {
-  const { token } = req.body;
-  try {
-    // Check if refresh token exists in the database
-    const tokenRecord = await prisma.token.findFirst({ where: { token: token } });
-    if (!tokenRecord) return res.status(404).json({ message: " token not found in the database" });
-
-    await prisma.token.delete({ where: { id: tokenRecord.id } });
-
-    res.status(200).json({ message: "Logout successful" });
-  } catch (err) {
-    throwError(err, res);
-  }
+const logout = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
 };
 
 module.exports = { register, login, logout };
