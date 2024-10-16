@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const Auth = require('./user/routes/AuthRoute');
 const UserController = require('./user/controllers/UserController');
 const ScannerRoute = require('./user/routes/ScannerRoute');
@@ -36,7 +35,6 @@ app.options('*', cors(corsOptions));
 
 // Middleware
 app.use(express.json());
-app.use(cookieParser());
 
 // Routes
 app.use('/auth', Auth);

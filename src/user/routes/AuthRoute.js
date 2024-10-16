@@ -7,12 +7,6 @@ const router = express.Router();
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', protect, logout);
-router.post('/refreshtoken', refreshToken);  // New refresh token endpoint
-
-router.get('/test', (req, res) => {
-  res.status(200).json({ message: 'Test route is working!' });
-});
-
 router.get('/', protect, (req, res) => {
   return res.status(200).json({ message: 'Authenticated', user: req.user });
 });
