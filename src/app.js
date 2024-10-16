@@ -13,16 +13,6 @@ const AdminRoutes = require('./admin/routes/AdminRoute');
 
 const app = express();
 
-// Set a timeout limit for all requests
-const REQUEST_TIMEOUT = 15000; // 15 seconds
-app.use((req, res, next) => {
-    req.setTimeout(REQUEST_TIMEOUT, () => {
-        // If the request exceeds the time limit, respond with an error
-        res.status(408).json({ error: 'Request timed out. Please try again later.' });
-    });
-    next();
-});
-
 // CORS Configuration
 const corsOptions = {
     origin: [
@@ -46,6 +36,7 @@ app.options('*', cors(corsOptions));
 
 // Parse JSON requests
 app.use(express.json());
+
 app.use(cookieParser());
 
 // Routes
@@ -61,12 +52,23 @@ app.use('/admin', AdminRoutes);
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err.stack);  // Log the error details
-    res.status(500).json({
-        error: 'Something went wrong, please try again later.',
-        message: err.message,
-        stack: err.stack,  // Return stack trace for debugging
-    });
+    console.error('Error:', err.stack);  // Log the error details for debugging
+
+    // Set a default status code (500 Internal Server Error)
+    const statusCode = err.status || 500;
+
+    // Return different error messages based on environment (development vs production)
+    const response = {
+        success: false,
+        message: err.message || 'Internal Server Error',
+    };
+
+    // If in development, include the stack trace for easier debugging
+    if (process.env.NODE_ENV === 'development') {
+        response.stack = err.stack;
+    }
+
+    res.status(statusCode).json(response);
 });
 
 // Catch-all for 404 Not Found (if no routes matched)
@@ -83,10 +85,10 @@ app.listen(PORT, () => {
 // Handle uncaught exceptions and unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
-    // You can optionally exit the process or restart using PM2
+    // Optionally, restart the app or notify the team in production
 });
 
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
-    // You can optionally gracefully shut down or restart using PM2
+    // Optionally, gracefully shut down or restart using PM2
 });
