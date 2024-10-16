@@ -11,14 +11,14 @@ const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();  // Continue to the next middleware or route handler
+    req.user = decoded; // Attach user info to the request
+    next(); // Proceed to the next middleware or route handler
   } catch (err) {
-    return error(res, 'Token not valid!', 401);
+    return error(res, 'Invalid token!', 401);
   }
 };
 
-// Middleware for role-based authorization
+// Middleware for role-based authorization (generic for multiple roles)
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (!allowedRoles.includes(req.user.role)) {
