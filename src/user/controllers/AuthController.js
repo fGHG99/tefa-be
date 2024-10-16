@@ -51,43 +51,35 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
-    // Check if user exists
+    console.log("Attempting to log in:", email);  // Log email
+
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
-      console.log('Login failed: Email not found');
+      console.log("User not found with email:", email);  // Log if user is not found
       return res.status(404).json({ message: "Email not found!" });
     }
 
-    // Compare provided password with stored password
+    console.log("User found:", user);  // Log user data
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      console.log('Login failed: Incorrect password');
+      console.log("Password mismatch for user:", user.email);  // Log if password doesn't match
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Generate access token
+    console.log("Password match, creating token for user:", user.email);  // Log when password matches
+
     const Token = accessToken(user);
 
-    // Create token in the Token model
-    const createdToken = await prisma.token.create({
-      data: {
-        token: Token,
-        userId: user.id,
-        expiresAt: expireAt
-      }
-    });
+    await prisma.$transaction([
+      prisma.token.create({ data: { token: Token, userId: user.id, expiresAt: expireAt } }),
+      prisma.user.update({ where: { id: user.id }, data: { refreshToken: Token } })
+    ]);
 
-    // Update the user's refreshToken field in the User model
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken: Token }
-    });
+    console.log("Token and refresh token created:", Token);  // Log the token creation
 
-    console.log('Token created:', createdToken);
-    console.log('User updated with refresh token:', updatedUser);
-
-    // Set token in cookie
     res.cookie('token', Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -95,17 +87,15 @@ const login = async (req, res) => {
       maxAge: expireIn * 1000,
     });
 
-    // Return success response
-    res.status(200).json({
+    return res.status(200).json({
       data: {
-        userId: user.id,
+        UserId: user.id,
         name: user.name,
       },
       token: Token,
     });
   } catch (err) {
-    // Log the error in detail
-    console.error("Error during login:", err);
+    console.error("Error during login:", err);  // Log the error details
     return res.status(500).json({ message: "Internal server error" });
   }
 };
