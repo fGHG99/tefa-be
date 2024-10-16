@@ -60,7 +60,7 @@ model User {
 
 model Token {
   id        Int      @id @default(autoincrement())
-  token     String   @db.VarChar(1024)
+  token     String   @unique @db.VarChar(1024)
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
