@@ -13,6 +13,16 @@ const AdminRoutes = require('./admin/routes/AdminRoute');
 
 const app = express();
 
+// Set a timeout limit for all requests
+const REQUEST_TIMEOUT = 15000; // 15 seconds
+app.use((req, res, next) => {
+    req.setTimeout(REQUEST_TIMEOUT, () => {
+        // If the request exceeds the time limit, respond with an error
+        res.status(408).json({ error: 'Request timed out. Please try again later.' });
+    });
+    next();
+});
+
 // CORS Configuration
 const corsOptions = {
     origin: [
@@ -36,7 +46,6 @@ app.options('*', cors(corsOptions));
 
 // Parse JSON requests
 app.use(express.json());
-
 app.use(cookieParser());
 
 // Routes
@@ -53,7 +62,11 @@ app.use('/admin', AdminRoutes);
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err.stack);  // Log the error details
-    res.status(500).json({ error: 'Something went wrong, please try again later.' });
+    res.status(500).json({
+        error: 'Something went wrong, please try again later.',
+        message: err.message,
+        stack: err.stack,  // Return stack trace for debugging
+    });
 });
 
 // Catch-all for 404 Not Found (if no routes matched)
@@ -70,10 +83,10 @@ app.listen(PORT, () => {
 // Handle uncaught exceptions and unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
-    // Optional: Exit process or restart using PM2
+    // You can optionally exit the process or restart using PM2
 });
 
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
-    // Optional: Gracefully shut down or restart using PM2
+    // You can optionally gracefully shut down or restart using PM2
 });
