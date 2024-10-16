@@ -4,7 +4,7 @@ const { error } = require('../../utils/Helper');
 // Middleware to verify JWT and authenticate user
 const protect = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from the header
 
     if (!token) {
       return error(res, 'Token not available', 401);

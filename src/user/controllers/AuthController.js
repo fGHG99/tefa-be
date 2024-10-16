@@ -39,26 +39,29 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Incorrect password" });
 
-    const accessToken = AccessToken(user);
+    const token = AccessToken(user);
 
     await prisma.$transaction([
       prisma.token.create({
-        data: { token: accessToken, userId: user.id, expiresAt: new Date(Date.now() + accessTokenExpireIn * 1000) }
+        data: { token: token, userId: user.id, expiresAt: new Date(Date.now() + accessTokenExpireIn * 1000) }
       }),
-      prisma.user.update({ where: { id: user.id }, data: { accessToken } })
+      prisma.user.update({ where: { id: user.id }, data: { token } })
     ]);
 
+    // Send the user's role and token back in the response
     return res.status(200).json({
       data: {
         userId: user.id,
         name: user.name,
+        role: user.role, 
       },
-      accessToken,
+      accessToken: token, 
     });
   } catch (err) {
     return res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
+
 
 // Logout User
 // const logout = (req, res) => {
@@ -70,4 +73,4 @@ const login = async (req, res) => {
 //   res.status(200).json({ message: "Logged out successfully" });
 // };
 
-module.exports = { register, login, logout };
+module.exports = { register, login };
