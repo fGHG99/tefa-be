@@ -51,41 +51,65 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
+    // Check if user exists
     const user = await prisma.user.findFirst({ where: { email } });
-    if (!user) return res.status(404).json({ message: "Email not found!" });
+    if (!user) {
+      console.log('Login failed: Email not found');
+      return res.status(404).json({ message: "Email not found!" });
+    }
 
+    // Compare provided password with stored password
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: "Incorrect password" });
+    if (!match) {
+      console.log('Login failed: Incorrect password');
+      return res.status(401).json({ message: "Incorrect password" });
+    }
 
-    // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    // Generate access token
+    const Token = accessToken(user);
 
-    // Store refresh token in the database
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken }
+    // Create token in the Token model
+    const createdToken = await prisma.token.create({
+      data: {
+        token: Token,
+        userId: user.id,
+        expiresAt: expireAt
+      }
     });
 
-    res.cookie('token', accessToken, {
+    // Update the user's refreshToken field in the User model
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: Token }
+    });
+
+    console.log('Token created:', createdToken);
+    console.log('User updated with refresh token:', updatedUser);
+
+    // Set token in cookie
+    res.cookie('token', Token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: expireIn * 1000,
     });
 
+    // Return success response
     res.status(200).json({
-      data: { UserId: user.id, name: user.name },
-      token: accessToken,
-      refreshToken,
+      data: {
+        userId: user.id,
+        name: user.name,
+      },
+      token: Token,
     });
   } catch (err) {
-    console.error("Login error:", err);
+    // Log the error in detail
+    console.error("Error during login:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 // Refresh token endpoint
 const refreshToken = async (req, res) => {
