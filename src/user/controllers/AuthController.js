@@ -2,137 +2,115 @@ const { prisma } = require("../../utils/Prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const secret = process.env.JWT_SECRET; 
-const expireIn = 60 * 60 * 1; // Access token expires in 1 hour
-const refreshExpireIn = 60 * 60 * 24; // Refresh token expires in 24 hours
+const secret = process.env.JWT_SECRET;
+const accessTokenExpireIn = 60 * 60 * 1; // 1 hour
+const refreshTokenExpireIn = 60 * 60 * 24; // 24 hours
 
-// Function to generate access token
+// Generate Access Token
 const generateAccessToken = (user) => {
-  return jwt.sign(
-    { id: user.id, role: user.role },
-    secret,
-    { expiresIn: expireIn }
-  );
+  return jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: accessTokenExpireIn });
 };
 
-// Function to generate refresh token
+// Generate Refresh Token
 const generateRefreshToken = (user) => {
-  return jwt.sign(
-    { id: user.id, role: user.role },
-    secret,
-    { expiresIn: refreshExpireIn }
-  );
+  const refreshToken = jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: refreshTokenExpireIn });
+  return refreshToken;
 };
 
-// Register new user
+// Register New User
 const register = async (req, res) => {
   try {
     const { email, name, password } = req.body;
-
     const emailAlreadyExist = await prisma.user.findFirst({ where: { email } });
-    if (emailAlreadyExist) {
-      return res.status(400).json({ message: 'Email already exists' });
-    }
+    if (emailAlreadyExist) return res.status(400).json({ message: "Email already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-      data: { email, password: hashedPassword, name, role: "USER" },
+      data: { email, password: hashedPassword, name, role: "USER" }
     });
 
-    return res.status(201).json({
-      message: "User registered successfully",
-    });
+    return res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
-    console.error("Error during registration:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
 
-// Login user
+// Login User
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log("Attempting to log in:", email);  // Log email
-
     const user = await prisma.user.findFirst({ where: { email } });
-    if (!user) {
-      console.log("User not found with email:", email);  // Log if user is not found
-      return res.status(404).json({ message: "Email not found!" });
-    }
-
-    console.log("User found:", user);  // Log user data
+    if (!user) return res.status(404).json({ message: "Email not found!" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      console.log("Password mismatch for user:", user.email);  // Log if password doesn't match
-      return res.status(401).json({ message: "Incorrect password" });
-    }
+    if (!match) return res.status(401).json({ message: "Incorrect password" });
 
-    console.log("Password match, creating token for user:", user.email);  // Log when password matches
-
-    const Token = accessToken(user);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     await prisma.$transaction([
-      prisma.token.create({ data: { token: Token, userId: user.id, expiresAt: expireAt } }),
-      prisma.user.update({ where: { id: user.id }, data: { refreshToken: Token } })
+      prisma.token.create({
+        data: { token: refreshToken, userId: user.id, expiresAt: new Date(Date.now() + refreshTokenExpireIn * 1000) }
+      }),
+      prisma.user.update({ where: { id: user.id }, data: { refreshToken } })
     ]);
 
-    console.log("Token and refresh token created:", Token);  // Log the token creation
-
-    res.cookie('token', Token, {
+    res.cookie('token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: expireIn * 1000,
+      maxAge: accessTokenExpireIn * 1000,
     });
 
     return res.status(200).json({
       data: {
-        UserId: user.id,
+        userId: user.id,
         name: user.name,
       },
-      token: Token,
+      accessToken,
+      refreshToken,
     });
   } catch (err) {
-    console.error("Error during login:", err);  // Log the error details
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
 
-
-// Refresh token endpoint
+// Refresh Access Token
 const refreshToken = async (req, res) => {
   const { refreshToken: requestToken } = req.body;
-
-  if (!requestToken) {
-    return res.status(403).json({ message: "Refresh Token is required!" });
-  }
+  
+  if (!requestToken) return res.status(403).json({ message: "Refresh Token is required!" });
 
   try {
-    const user = await prisma.user.findFirst({ where: { refreshToken: requestToken } });
-    if (!user) return res.status(403).json({ message: "Refresh token is not valid" });
+    const storedToken = await prisma.token.findUnique({ where: { token: requestToken } });
+    if (!storedToken) return res.status(403).json({ message: "Invalid Refresh Token!" });
 
-    const decoded = jwt.verify(requestToken, secret);  // Verify the refresh token
+    if (new Date(storedToken.expiresAt) < new Date()) {
+      await prisma.token.delete({ where: { token: requestToken } });
+      return res.status(403).json({ message: "Refresh token expired. Please log in again." });
+    }
+
+    const user = await storedToken.user;
     const newAccessToken = generateAccessToken(user);
 
     return res.status(200).json({
       accessToken: newAccessToken,
+      refreshToken: storedToken.token,
     });
   } catch (err) {
-    console.error("Error during token refresh:", err);
-    return res.status(500).json({ message: "Failed to refresh token" });
+    return res.status(500).json({ message: "Failed to refresh token", error: err.message });
   }
 };
 
-// Logout (clear cookies)
+// Logout User
 const logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
   });
-  res.status(200).json({ message: 'Logged out successfully' });
+  res.status(200).json({ message: "Logged out successfully" });
 };
 
-module.exports = { register, login, logout, refreshToken };
+module.exports = { register, login, refreshToken, logout };
