@@ -21,5 +21,34 @@ router.get("/profile", protect, async (req, res) => {
   }
 });
 
+router.put("/profile", protect, async (req, res) => {
+  const { name, class: userClass } = req.body; // Destructuring the name and class from the request body
+
+  try {
+    // Fetch the user based on their ID from the JWT (req.user.id)
+    const user = await userModel.isExist(req.user.id);
+
+    if (!user) {
+      return error(res, "User not found");
+    }
+
+    const updatedUser = await userModel.updateUser(req.user.id, {
+      name: name || user.name, // Keep the original value if not provided
+      class: userClass || user.class, // Keep the original value if not provided
+    });
+
+    const profileData = {
+      name: updatedUser.name,
+      email: updatedUser.email,
+      class: updatedUser.class,
+      role: updatedUser.role,
+    };
+
+    return success(res, "Profile updated successfully!", profileData);
+  } catch (err) {
+    return error(res, err.message);
+  }
+});
+
 
 module.exports = router;
