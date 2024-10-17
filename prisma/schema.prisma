@@ -48,8 +48,9 @@ model User {
   email            String        @unique
   name             String?
   password         String
+  class            String?
   role             Role          @default(USER)
-  token     String? 
+  token            String? 
   History          History[]
   Token            Token[]
   orders           Order[]
