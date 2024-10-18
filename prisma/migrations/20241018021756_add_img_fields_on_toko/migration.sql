@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `toko` ADD COLUMN `img` VARCHAR(191) NULL;

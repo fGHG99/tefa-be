@@ -4,6 +4,7 @@ const { protect } = require('../middlewares/Middleware');
 const { success, error } = require('../../utils/Res');
 const router = express.Router();
 
+//get profile
 router.get("/profile", protect, async (req, res) => {
   try {
     const user = await userModel.isExist(req.user.id);
@@ -21,6 +22,7 @@ router.get("/profile", protect, async (req, res) => {
   }
 });
 
+//edit profile
 router.put("/profile", protect, async (req, res) => {
   const { name, class: userClass } = req.body; // Destructuring the name and class from the request body
 
