@@ -9,6 +9,7 @@ const OrderRoute = require('./user/routes/OrderRoute');
 const HistoryRoute = require('./user/routes/HistoryRoute');
 const ProductRoute = require('./user/routes/ProductRoute');
 const AdminRoutes = require('./admin/routes/AdminRoute');
+const StoreRoutes = require('./user/routes/StoreRoute');
 
 const app = express();
 
@@ -46,8 +47,9 @@ app.use('/history', HistoryRoute);
 app.use('/product', ProductRoute);
 app.use('/user', UserController);
 app.use('/admin', AdminRoutes);
+app.use('/store', StoreRoutes);
 
-// Global Error Handling Middleware
+
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
   const statusCode = err.status || 500;
