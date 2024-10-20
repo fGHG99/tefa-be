@@ -80,7 +80,7 @@ model Produk {
   orderItems OrderItem[] 
   inventory  Inventory?  
   quantity   Int?
-  cartItems  CartItem[] 
+  cartItems  CartItem[]
 }
 
 model Toko {
