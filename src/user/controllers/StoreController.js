@@ -4,8 +4,9 @@ const getStore = async (req, res) => {
   const { tokoType } = req.query; // Get tokoType from query parameters
 
   try {
+    // If tokoType is provided and not "All", filter by tokoType, otherwise return all
     const stores = await prisma.toko.findMany({
-      where: tokoType ? { tokoType } : {},  // If tokoType is provided, filter, else get all
+      where: tokoType && tokoType !== 'All' ? { tokoType } : {},
     });
     res.json(stores);
   } catch (error) {
