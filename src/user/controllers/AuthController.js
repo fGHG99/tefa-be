@@ -7,7 +7,7 @@ const accessTokenExpireIn = 60 * 60 * 24;
 
 // Generate Access Token
 const AccessToken = (user) => {
-  return jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: accessTokenExpireIn, algorithm: 'HS256' });
+  return jwt.sign({ uid: user.id, r: user.role }, secret, { expiresIn: accessTokenExpireIn });
 };
 
 // Register New User
