@@ -22,7 +22,7 @@ router.get('/', protect, (req, res) => {
 // New route to get user role based on user ID
 router.get('/users/:id/role', protect, async (req, res) => {
   try {
-    const userId = parseInt(req.params.id, 10); // Convert userId from string to number
+    const userId = req.params.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
