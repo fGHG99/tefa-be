@@ -55,12 +55,3 @@ jobs:
           # Run Prisma Migrations
           npx prisma migrate deploy
         EOF
-
-    - name: Seed Database
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          # Go to the app directory
-          cd /home/ubuntu/staging/mesan
-          # Run the seed script
-          npm run seed
-        EOF
