@@ -39,4 +39,25 @@ router.get('/users/:id/role', protect, async (req, res) => {
   }
 });
 
+// Assuming you have a way to get the logged-in user's ID, e.g., from a JWT token
+router.get('/current-user', protect, async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming `req.user` is set by your authentication middleware
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true }, // Select the ID and role of the user
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ id: user.id, role: user.role });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+});
+
+
 module.exports = router;
