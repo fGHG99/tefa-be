@@ -11,16 +11,15 @@ const AccessToken = (user) => {
 };
 
 // Register New User
-// Register New User with Custom Role
 const register = async (req, res) => {
   try {
-    const { email, name, password, role } = req.body; // Accept role from the request body
+    const { email, name, password } = req.body;
     const emailAlreadyExist = await prisma.user.findFirst({ where: { email } });
     if (emailAlreadyExist) return res.status(400).json({ message: "Email already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-      data: { email, name, password: hashedPassword, role: role || "USER" } // Use custom role or default to "USER"
+      data: { email,name ,password: hashedPassword, role: "USER" }
     });
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -28,7 +27,6 @@ const register = async (req, res) => {
     return res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
-
 
 // Login User
 const login = async (req, res) => {
