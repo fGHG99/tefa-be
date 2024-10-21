@@ -7,22 +7,22 @@ const feeController = require('../controllers/FeeController'); // Updated import
 // Apply `protect` and `authorizeRoles` middleware directly in the route definitions
 
 // Route to get Admin profile
-router.get("/profile", protect, async (req, res) => {
-    try {
-      const user = await userModel.isExist(req.user.id);
+// router.get("/profile", protect, async (req, res) => {
+//     try {
+//       const user = await userModel.isExist(req.user.id);
   
-      const profileData = {
-        name: user.name,
-        email: user.email,
-        class: user.class, 
-        role: user.role,
-      };
+//       const profileData = {
+//         name: user.name,
+//         email: user.email,
+//         class: user.class, 
+//         role: user.role,
+//       };
   
-      return success(res, "Profile fetched successfully!", profileData);
-    } catch (err) {
-      return error(res, err.message);
-    }
-  });
+//       return success(res, "Profile fetched successfully!", profileData);
+//     } catch (err) {
+//       return error(res, err.message);
+//     }
+//   });
   
   //edit profile
   router.put("/profile", protect, async (req, res) => {
@@ -55,14 +55,14 @@ router.get("/profile", protect, async (req, res) => {
   });
 
 // Routes for managing users
-router.post('/create', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), adminController.createUser);
-router.get('/users', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), adminController.getAllUsers);
-router.put('/update/:id', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), adminController.updateUser);
-router.delete('/delete/:id', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), adminController.deleteUser);
+router.post('/create', protect, authorizeRoles('ADMIN'), adminController.createUser);
+router.get('/users', protect, authorizeRoles('ADMIN'), adminController.getAllUsers);
+router.put('/update/:id', protect, authorizeRoles('ADMIN'), adminController.updateUser);
+router.delete('/delete/:id', protect, authorizeRoles('ADMIN'), adminController.deleteUser);
 
 // Routes for managing admin fees
-router.get('/get-fee', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), feeController.getAdminFee);
-router.put('/update-fee', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), feeController.updateAdminFee);
-router.post('/create-fee', protect, authorizeRoles('ADMIN', 'SUPER_ADMIN'), feeController.setAdminFee);
+router.get('/get-fee', protect, authorizeRoles('ADMIN'), feeController.getAdminFee);
+router.put('/update-fee', protect, authorizeRoles('ADMIN'), feeController.updateAdminFee);
+router.post('/create-fee', protect, authorizeRoles('ADMIN'), feeController.setAdminFee);
 
 module.exports = router;
