@@ -55,8 +55,8 @@ const feeController = require('../controllers/FeeController'); // Updated import
   });
 
 // Routes for managing users
-router.post('/create', protect, adminController.createUser);
-router.get('/users', protect, adminController.getAllUsers);
+router.post('/create', adminController.createUser);
+router.get('/users',  adminController.getAllUsers);
 router.put('/update/:id', protect, authorizeRoles('ADMIN'), adminController.updateUser);
 router.delete('/delete/:id', protect, authorizeRoles('ADMIN'), adminController.deleteUser);
 
