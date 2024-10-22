@@ -41,20 +41,27 @@ const getProductById = async (req, res) => {
 // Create a new product with associated toko and inventory
 const createProduct = async (req, res) => {
   try {
-    const { title, price, imgUrl, type, tokoId, inventoryQuantity } = req.body;
+    const { title, price, imgUrl, type, tokoId, tokoName, inventoryQuantity } = req.body;
 
+    // Create the product in the database
     const newProduct = await prisma.produk.create({
       data: {
         title,
         price,
         imgUrl,
         type,
-        toko: { connect: { id: tokoId } },  // Link to existing Toko
-        inventory: {                        // Create inventory record
-          create: {
-            quantity: inventoryQuantity,
+        toko: {
+          connect: {
+            tokoId: tokoId, // Use tokoId from the Toko model (UUID)
           },
         },
+        tokoName, // This is an optional field if you want to store it
+        inventory: {
+          create: {
+            quantity: inventoryQuantity || 0, // Set default quantity to 0 if not provided
+          },
+        },
+        quantity: inventoryQuantity || 0,
       },
     });
 
@@ -63,7 +70,8 @@ const createProduct = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Failed to create product' });
   }
-};
+};  
+
 
 // Update a product with possible modifications to toko and inventory
 const updateProduct = async (req, res) => {
@@ -128,6 +136,33 @@ const getProductsByType = async (req, res) => {
   }
 };
 
+const getProductByTokoId = async (req, res) => {
+  try {
+    const { tokoId } = req.params;
+
+    // Fetch products where tokoId matches
+    const products = await prisma.produk.findMany({
+      where: {
+        tokoId: tokoId, // Use tokoId from the request parameters
+      },
+      include: {
+        toko: true,      // Optionally include toko details
+        inventory: true, // Optionally include inventory details
+      },
+    });
+
+    if (!products.length) {
+      return res.status(404).json({ message: 'No products found for this store' });
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+};
+
+
 module.exports = {
   getProducts,
   getProductById,
@@ -135,4 +170,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getProductsByType,
+  getProductByTokoId,
 };

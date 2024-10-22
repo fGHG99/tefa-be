@@ -10,6 +10,7 @@ const HistoryRoute = require('./user/routes/HistoryRoute');
 const ProductRoute = require('./user/routes/ProductRoute');
 const AdminRoutes = require('./admin/routes/AdminRoute');
 const StoreRoutes = require('./user/routes/StoreRoute');
+const MerchantRoutes = require('./merchant/routes/MerchantRoute');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/product', ProductRoute);
 app.use('/user', UserController);
 app.use('/admin', AdminRoutes);
 app.use('/store', StoreRoutes);
+app.use('/merchant', MerchantRoutes);
 
 
 app.use((err, req, res, next) => {

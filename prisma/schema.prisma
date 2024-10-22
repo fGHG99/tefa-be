@@ -54,9 +54,10 @@ model User {
   History          History[]
   Token            Token[]
   orders           Order[]
-  cart             Cart?   @relation
+  cart             Cart?        @relation
   cartId           Int?    
   favorites        Favorite[]
+  stores            Toko[]       @relation("TokoOwner") // Menyimpan daftar toko yang dimiliki
 }
 
 model Token {
@@ -92,8 +93,10 @@ model Toko {
   produk   Produk[]
   cartItems CartItem[]
   favorite Favorite[]
-  scanners Scanner[] 
+  scanners Scanner[]
   orders   Order[]
+  ownerId  String
+  owner    User         @relation("TokoOwner", fields: [ownerId], references: [id]) // Menyertakan nama relasi
 }
 
 model Order {

@@ -1,42 +1,36 @@
 const jwt = require('jsonwebtoken');
 const { prisma } = require('../../utils/Prisma')
 
-// Middleware to verify JWT and authenticate user
-const protect = async (req, res, next) => {
-    try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ error: 'Access denied, no token provided' });
-        }
+// Middleware untuk otentikasi merchant
+const verifyMerchant = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  
+  // Cek apakah Authorization header tersedia
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Token tidak ditemukan." });
+  }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+  const token = authHeader.split(' ')[1]; // Mengambil token setelah 'Bearer'
 
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+  try {
+    // Verifikasi token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
 
-        // Check role is 'USER' and validate email domain if necessary
-        if (user.role === 'USER') {
-            return res.status(403).json({ error: 'Access denied' });
-        }
+    // Mencari user berdasarkan id yang didecode dari token
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-        // Attach user to request object for further use
-        req.user = user;
-        next();
-    } catch (err) {
-        return res.status(400).json({ error: 'Invalid token' });
+    // Cek apakah user ada dan memiliki peran 'MERCHANT'
+    if (!user || user.role !== 'MERCHANT') {
+      return res.status(403).json({ error: "Akses ditolak. Bukan merchant." });
     }
+
+    req.user = user; // Simpan informasi user di request
+    next(); // Lanjut ke middleware atau controller
+  } catch (error) {
+    return res.status(403).json({ error: "Token tidak valid." });
+  }
 };
 
-// Middleware for role-based authorization (generic for multiple roles)
-const authorizeRoles = (...allowedRoles) => {
-    return (req, res, next) => {
-        if (!allowedRoles.includes(req.user.role)) {
-            return res.status(403).json({ error: `Access denied, only ${allowedRoles.join(', ')} are allowed` });
-        }
-        next();
-    };
+module.exports = {
+  verifyMerchant,
 };
-
-module.exports = { protect, authorizeRoles };
