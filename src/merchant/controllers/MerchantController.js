@@ -32,7 +32,8 @@
     try {
       const merchant = await prisma.user.findUnique({
         where: { id: userId },
-        include: { stores: true }, // Menyertakan toko yang dimiliki
+        include: { stores: true },
+        include: { produk: true } // Menyertakan toko yang dimiliki
       });
 
       if (!merchant) {
